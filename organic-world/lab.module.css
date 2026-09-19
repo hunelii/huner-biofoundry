@@ -1,0 +1,40 @@
+.lab { position:relative; min-height:500svh; background:#f4f1e8; color:#22311d; }
+.canvas { position:fixed; inset:0; width:100%; height:100svh; display:block; }
+.header,.footer { position:fixed; z-index:2; left:4.5vw; right:4.5vw; display:flex; justify-content:space-between; gap:24px; font-size:11px; letter-spacing:.08em; }
+.header { top:30px; }
+.footer { bottom:30px; font-size:10px; letter-spacing:.12em; }
+.intro { position:fixed; z-index:1; left:4.5vw; top:31%; pointer-events:none; }
+.eyebrow { font-size:10px; letter-spacing:.12em; margin:0 0 35px; }
+.intro h1 { font-size:clamp(58px,7.4vw,112px); line-height:.96; letter-spacing:-.065em; font-weight:400; margin:0 0 28px; }
+.intro > p:last-child { font-size:17px; line-height:1.5; }
+.failure { position:fixed; z-index:3; bottom:90px; left:4.5vw; right:4.5vw; }
+@media(max-width:600px) {
+ .header,.footer { left:22px; right:22px; font-size:9px; }
+ .intro { left:22px; top:50%; }
+ .intro h1 { font-size:64px; }
+ .intro > p:last-child { font-size:15px; }
+}
+
+.footer { padding:0; border:0; margin:0; background:transparent; }
+.stops { display:flex; gap:12px; pointer-events:auto; }
+.stops button { border:1px solid #22311d30; border-radius:50%; background:#f4f1e8; width:36px; height:36px; font:inherit; cursor:pointer; }
+.stops button[aria-pressed=true] { background:#22311d; color:#f4f1e8; }
+.footer { align-items:center; }
+.conditions { position:fixed; left:4.5vw; bottom:105px; z-index:2; font-size:11px; }
+.conditions p { font-size:10px; margin:14px 0 0; letter-spacing:.02em; }
+.actions { display:flex; gap:26px; }
+.actions button { padding:10px 0; background:transparent; font:inherit; border:0; border-bottom:1px solid #22311d50; cursor:pointer; }
+.actions button:disabled { opacity:.5; cursor:default; }
+.stops button { min-width:44px; min-height:44px; }
+.lab button:focus-visible { outline:2px solid #22311d; outline-offset:5px; }
+.fallback { position:fixed; inset:0; width:100%; height:100svh; background:#f4f1e8; }
+.lab[data-failed=true] { min-height:100svh; }
+.lab[data-failed=true] .canvas { display:none; }
+@media(max-width:600px) {
+ .conditions { left:22px; bottom:105px; }
+ .footer { flex-wrap:wrap; gap:12px; bottom:20px; }
+ .footer > span:last-child { display:none; }
+ .stops { gap:6px; }
+ .header span:last-child { max-width:110px; text-align:right; line-height:1.4; }
+ .intro { top:44%; }
+}

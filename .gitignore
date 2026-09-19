@@ -11,3 +11,5 @@ dist/
 .vercel/
 .netlify/
 .vercel
+
+node_modules
