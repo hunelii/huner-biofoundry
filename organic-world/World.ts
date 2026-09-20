@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { lamellarSheet, chamber, fiberBridges, innerMembrane } from "./geometry";
+import { lamellarSheet, chamber, fiberBridges, innerMembrane, terminalBasin } from "./geometry";
 import { livingMaterial } from "./material";
 import { poseAt } from "./camera";
 import { GrowthField } from "./field";
@@ -69,7 +69,7 @@ export class OrganicWorld {
   }
   private build() {
     this.formation.clear();this.geometries.forEach(g=>g.dispose());this.geometries=[];
-    const geometries=[lamellarSheet(0,true,this.quality),chamber(false,this.quality,true),chamber(true,this.quality,true),...[-5.4,-6.5,-7.8].map((z,i)=>innerMembrane(z,i*1.4))];
+    const geometries=[lamellarSheet(0,true,this.quality),chamber(false,this.quality,true),chamber(true,this.quality,true),innerMembrane(-2.7,.5,.62,2.72,-.32),...[-5.2,-6.1,-7.1,-8.3].map((z,i)=>innerMembrane(z,i*1.1)),terminalBasin()];
     for(const g of geometries){this.geometries.push(g);this.formation.add(new THREE.Mesh(g,this.material));}
     const fibers=fiberBridges(this.quality), merged=mergeGeometries(fibers);
     fibers.forEach(g=>g.dispose());

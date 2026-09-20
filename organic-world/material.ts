@@ -4,14 +4,15 @@ import * as THREE from "three";
 export function livingMaterial(field?: THREE.Texture, strength = 1) {
   const material = new THREE.MeshStandardMaterial({
     color: "#F4F1E8", vertexColors: true, roughness: .96,
-    metalness: 0, side: THREE.DoubleSide,
+    metalness: 0, side: THREE.DoubleSide, transparent:true, forceSinglePass:true,
   });
   material.onBeforeCompile = shader => {
     shader.uniforms.growthField = { value: field ?? null };
     shader.uniforms.growthStrength = { value: field ? strength : 0 };
-    shader.vertexShader = "attribute vec3 growthDirection; uniform sampler2D growthField; uniform float growthStrength; varying vec3 vOrganicPosition; varying float vGrowth;\n" + shader.vertexShader;
+    shader.vertexShader = "attribute float edgeOpacity; varying float vEdgeOpacity; attribute vec3 growthDirection; uniform sampler2D growthField; uniform float growthStrength; varying vec3 vOrganicPosition; varying float vGrowth;\n" + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", `
       #include <begin_vertex>
+      vEdgeOpacity=edgeOpacity;
       vec3 biological = texture2D(growthField,uv).rgb;
       vGrowth = biological.b * growthStrength;
       float ridgeGrowth = .28 + .09 * sin(position.y*12. + position.x*9.);
@@ -21,6 +22,7 @@ export function livingMaterial(field?: THREE.Texture, strength = 1) {
     shader.fragmentShader = `
       varying vec3 vOrganicPosition;
       varying float vGrowth;
+      varying float vEdgeOpacity;
       float hash3(vec3 p) { return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453); }
       float grain(vec3 p) {
         vec3 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
@@ -30,9 +32,10 @@ export function livingMaterial(field?: THREE.Texture, strength = 1) {
     ` + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", `
       #include <color_fragment>
-      float g = grain(vOrganicPosition*105.);
-      float pores = smoothstep(.72,.91,grain(vOrganicPosition*38.));
-      diffuseColor.rgb *= .92 + g*.10 - pores*.11 - vGrowth*.14;
+      float g = grain(vOrganicPosition*280.);
+
+      diffuseColor.a *= vEdgeOpacity;
+      diffuseColor.rgb *= .975 + g*.035 - vGrowth*.09;
     `);
     shader.fragmentShader = shader.fragmentShader.replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor - vGrowth*.1,.78,1.);");
   };
