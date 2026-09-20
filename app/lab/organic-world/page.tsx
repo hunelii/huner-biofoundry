@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import OrganicWorldLab from "@/organic-world/OrganicWorldLab";
+import OrganicWorldPage from "@/organic-world/OrganicWorldPage";
 
 export const metadata: Metadata = {
-  title: "Organic World — Huner private study",
+  title: "Huner Biofoundry — Experimental living journey",
   robots: { index: false, follow: false },
 };
 
 export default function Page() {
-  return <OrganicWorldLab />;
+  return <OrganicWorldPage />;
 }

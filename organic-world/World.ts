@@ -1,9 +1,11 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { lamellarSheet, chamber, fiberBridges, innerMembrane, terminalBasin } from "./geometry";
-import { livingMaterial } from "./material";
+import { livingMaterial, type ReadingComposition } from "./material";
 import { poseAt } from "./camera";
 import { GrowthField } from "./field";
+import { focalCell, CELL_CENTER } from "./focal-cell";
+import type { WorldPresentation } from "./journey";
 
 export class OrganicWorld {
   private renderer: THREE.WebGLRenderer;
@@ -13,11 +15,16 @@ export class OrganicWorld {
   private geometries: THREE.BufferGeometry[] = [];
   private material: THREE.MeshStandardMaterial;
   private fiberMaterial: THREE.MeshStandardMaterial;
+  private cellMaterial: THREE.MeshStandardMaterial;
+  private composition: ReadingComposition = { room: { value: 0 }, sweep: { value: 0 }, viewport: { value: new THREE.Vector2(1,1) } };
   private field = new GrowthField();
   private bytes = new Uint8Array(72 * 72 * 4);
   private texture: THREE.DataTexture;
   private progress = 0;
   private target = 0;
+  private emergence = 1;
+  private settle = 0;
+  private presentationTarget: WorldPresentation = { progress: 0, emergence: 1, settle: 0, page: 0 };
   private frame = 0;
   private last = 0;
   private accumulated = 0;
@@ -36,7 +43,7 @@ export class OrganicWorld {
   onProgress?: (progress: number) => void;
   onCondition?: () => void;
   onFailure?: () => void;
-  constructor(private canvas: HTMLCanvasElement) {
+  constructor(private canvas: HTMLCanvasElement, private options: { presentation?: () => WorldPresentation } = {}) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
     this.renderer.setClearColor("#F4F1E8");
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -47,14 +54,18 @@ export class OrganicWorld {
     this.texture.wrapS = THREE.RepeatWrapping;
     this.texture.minFilter=this.texture.magFilter=THREE.LinearFilter;
     this.field.writeTexture(this.bytes);this.texture.needsUpdate=true;
-    this.material = livingMaterial(this.texture);
-    this.fiberMaterial = livingMaterial(this.texture,.06);
+    this.material = livingMaterial(this.texture,1,this.composition);
+    this.fiberMaterial = livingMaterial(this.texture,.06,this.composition);
+    this.cellMaterial = livingMaterial(this.texture,.24,this.composition);
     this.scene.add(this.formation, new THREE.HemisphereLight("#F4F1E8", "#374F2F", 2));
     const key = new THREE.DirectionalLight("#F4F1E8", 2.4);
     key.position.set(-5, 7, 8); this.scene.add(key);
     const fill = new THREE.DirectionalLight("#F4F1E8", .6);
     fill.position.set(3, -2, 5); this.scene.add(fill);
     this.canvas.dataset.paused="false";
+    this.presentationTarget = this.options.presentation?.() ?? this.presentationTarget;
+    this.progress = this.target = this.presentationTarget.progress;
+    this.emergence = this.presentationTarget.emergence; this.settle = this.presentationTarget.settle;
     this.build(); this.resize(); this.scroll();
     if(this.stopped){this.dispose();throw new Error("Organic World shader initialization failed");}
     addEventListener("resize", this.resize);
@@ -74,18 +85,27 @@ export class OrganicWorld {
     const fibers=fiberBridges(this.quality), merged=mergeGeometries(fibers);
     fibers.forEach(g=>g.dispose());
     if(merged){this.geometries.push(merged);this.formation.add(new THREE.Mesh(merged,this.fiberMaterial));}
+    const cell = focalCell(this.quality);
+    for (const [name, g] of Object.entries(cell)) {
+      this.geometries.push(g);
+      const mesh = new THREE.Mesh(g, this.cellMaterial); mesh.name = "focal-cell-" + name;
+      this.formation.add(mesh);
+    }
+    this.canvas.dataset.cellCenter = CELL_CENTER.toArray().join(",");
   }
   resize = () => {
     const pixelBudget=this.quality<1 ? 1_050_000 : 2_200_000;
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, this.quality<1?1.2:1.5,Math.sqrt(pixelBudget/(innerWidth*innerHeight))));
     this.renderer.setSize(innerWidth, innerHeight, false);
+    this.renderer.getDrawingBufferSize(this.composition.viewport.value);
     this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();
     this.draw();this.canvas.dataset.ready="true";
     this.canvas.dataset.quality=String(this.quality);
   };
   scroll = () => {
-    this.target=Math.max(0,Math.min(1,scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight)));
-    if(this.reduced.matches){this.progress=this.target;this.draw();}
+    this.presentationTarget = this.options.presentation?.() ?? { progress: Math.max(0,Math.min(1,scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight))), emergence: 1, settle: 0, page: 0 };
+    this.target=this.presentationTarget.progress;
+    if(this.reduced.matches){this.progress=this.target;this.emergence=this.presentationTarget.emergence;this.settle=this.presentationTarget.settle;this.draw();}
   };
   setPaused(value:boolean){this.paused=value;this.canvas.dataset.paused=String(value);}
   addCondition = () => { if(this.paused||this.reduced.matches||this.stopped)return;this.field.addCondition(.7,.61);this.onCondition?.(); };
@@ -114,8 +134,16 @@ export class OrganicWorld {
     const dt=Math.min(.05,(now-(this.last||now))/1000);this.last=now;
     if(document.hidden||this.reduced.matches)return;
     const start=performance.now();
-    const moving=Math.abs(this.target-this.progress)>.00005;
-    if(moving)this.progress+=(this.target-this.progress)*(1-Math.exp(-dt*7));
+    const moving=Math.abs(this.target-this.progress)+Math.abs(this.emergence-this.presentationTarget.emergence)+Math.abs(this.settle-this.presentationTarget.settle)>.00005;
+    if(moving){
+      const smoothing=1-Math.exp(-dt*7);
+      const travelled=Math.abs(this.target-this.progress)*smoothing;
+      // Travel changes the environment gently; it never writes the biological channels.
+      if(this.options.presentation&&!this.paused&&travelled>0.00001)this.field.addCondition(.7,.61,Math.min(.004,travelled*.12));
+      this.progress+=(this.target-this.progress)*smoothing;
+      this.emergence+=(this.presentationTarget.emergence-this.emergence)*smoothing;
+      this.settle+=(this.presentationTarget.settle-this.settle)*smoothing;
+    }
     // Biology has its own clock; camera motion never suspends it.
     if(!this.paused){
       this.accumulated+=dt;
@@ -127,7 +155,8 @@ export class OrganicWorld {
     if(!this.sampleStart)this.sampleStart=now;
     if(now-this.sampleStart>2000){
       const fps=this.frames*1000/(now-this.sampleStart);
-      this.canvas.dataset.metrics=JSON.stringify({fps:Math.round(fps),cpuMs:+(this.cpuTotal/this.frames).toFixed(2),triangles:this.renderer.info.render.triangles,drawCalls:this.renderer.info.render.calls,pixels:this.canvas.width*this.canvas.height,field:this.field.summary()});
+      const cellSample=Math.floor(.61*this.field.size)*this.field.size+Math.floor(.7*this.field.size);
+      this.canvas.dataset.metrics=JSON.stringify({fps:Math.round(fps),cpuMs:+(this.cpuTotal/this.frames).toFixed(2),triangles:this.renderer.info.render.triangles,drawCalls:this.renderer.info.render.calls,pixels:this.canvas.width*this.canvas.height,field:this.field.summary(),cell:{environment:this.field.delayed[cellSample],biology:this.field.b[cellSample],morphology:this.field.morphology[cellSample]}});
       this.slowWindows=fps<27 ? this.slowWindows+1 : 0;
       if(this.slowWindows>=2&&this.quality>.5){this.quality=.5;this.build();this.resize();this.slowWindows=0;}
       this.frames=0;this.cpuTotal=0;this.sampleStart=now;
@@ -135,10 +164,22 @@ export class OrganicWorld {
   };
   private draw() {
     const pose=poseAt(this.progress,this.camera.aspect);
+    if(this.options.presentation){
+      // Prelude extends away from A; A–D world-space positions and targets stay intact.
+      pose.position.z+=50*(1-this.emergence);
+      const offset=this.progress*.14+Math.sin(this.progress*Math.PI)*.16+this.settle*.12+(1-this.emergence)*.24;
+      this.camera.setViewOffset(innerWidth,innerHeight,-innerWidth*offset,innerHeight*.12*(1-this.emergence),innerWidth,innerHeight);
+      this.camera.zoom=1-this.progress*.08-this.settle*.20;
+      this.camera.updateProjectionMatrix();
+      this.composition.room.value=this.emergence;
+      this.composition.sweep.value=1-THREE.MathUtils.smoothstep(this.progress,.34,.69);
+      this.canvas.style.opacity=String((.1+this.emergence*.9)*(1-this.settle*.83));
+    }
     this.camera.position.copy(pose.position);this.camera.lookAt(pose.target);this.camera.updateMatrixWorld();
     this.renderer.render(this.scene,this.camera);
     this.canvas.dataset.progress=this.progress.toFixed(4);
     this.canvas.dataset.camera=pose.position.toArray().map(x=>x.toFixed(3)).join(",");
+    this.canvas.dataset.settle=this.settle.toFixed(4);
     this.onProgress?.(this.progress);
   }
   dispose() {
@@ -147,6 +188,6 @@ export class OrganicWorld {
     removeEventListener("pointermove",this.pointerMove);removeEventListener("pointerdown",this.pointerDown);
     removeEventListener("pointerup",this.pointerUp);removeEventListener("pointercancel",this.pointerCancel);
     this.reduced.removeEventListener("change",this.motionChange);this.canvas.removeEventListener("webglcontextlost",this.contextLost);
-    this.geometries.forEach(g=>g.dispose());this.material.dispose();this.fiberMaterial.dispose();this.texture.dispose();this.renderer.dispose();
+    this.geometries.forEach(g=>g.dispose());this.material.dispose();this.fiberMaterial.dispose();this.cellMaterial.dispose();this.texture.dispose();this.renderer.dispose();
   }
 }

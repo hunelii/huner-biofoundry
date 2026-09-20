@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { site } from "@/lib/site";
 import dynamic from "next/dynamic";
 import MilestoneJourney from "./MilestoneJourney";
@@ -8,7 +8,7 @@ const LivingFoundry = dynamic(
   () => import("@/living-foundry/LivingFoundryCanvas"),
   { ssr: false },
 );
-export default function FoundryExperience() {
+export default function FoundryExperience({ SpatialLayer }: { SpatialLayer?: ComponentType<{ paused: boolean }> } = {}) {
   const [paused, setPaused] = useState(false);
   return (
     <>
@@ -29,8 +29,10 @@ export default function FoundryExperience() {
       <div className="journey-progress" aria-hidden="true" />
       <main id="arrival" tabIndex={-1}>
         <div className="field-layer" aria-hidden="true">
-          <div className="still-organism" />
-          <LivingFoundry paused={paused} />
+          {SpatialLayer ? <SpatialLayer paused={paused} /> : <>
+            <div className="still-organism" />
+            <LivingFoundry paused={paused} />
+          </>}
         </div>
         <section className="arrival" aria-labelledby="arrival-title">
           <div className="arrival-observation" aria-hidden="true"><span className="observation-dot" /> A LIVING POSSIBILITY<span className="observation-line" /></div>

@@ -1,0 +1,40 @@
+.page[data-organic-page] { --field-paper:#f4f1e8; background:#f4f1e8; color:#22311d; }
+.canvas,.fallback { position:fixed; inset:0; width:100%; height:100svh; display:block; }
+.canvas[hidden] { display:none; }
+.page[data-organic-page] :global(.brand-header),.page[data-organic-page] :global(.motion-control) { background:transparent; text-shadow:none; color:#22311d; }
+.page[data-organic-page] :global(.field-layer) { background:#f4f1e8; }
+.page[data-organic-page] :global(.applications-intro),.page[data-organic-page] :global(.closing),.page[data-organic-page] :global(footer),.page[data-organic-page] :global(.milestone-journey) { background:transparent; }
+.page[data-organic-page] :global(.cultivation) { height:150svh; min-height:0; padding:0; overflow:visible; background:transparent; }
+.page[data-organic-page] :global(.cultivation-frame) { position:sticky; top:0; min-height:100svh; padding:100px var(--page-x) 90px; overflow:clip; }
+.page[data-organic-page] :global(.cultivation .narrative-copy) { margin-top:20vh; max-width:85%; opacity:1; }
+.page[data-organic-page] :global(.cultivation h2) { color:var(--growth-green); }
+.page[data-organic-page] :global(.cultivation p) { color:var(--foundry-green); }
+.page[data-organic-page] :global(.tissue-sequence) { color:var(--culture-green); }
+.page[data-organic-page] :global(.material-stage) { height:440svh; }
+.page[data-organic-page] :global(.material-frame) { position:sticky; top:0; height:100svh; }
+.page[data-organic-page] :global(.material-still),.page[data-organic-page] :global(.cell-legend) { display:none; }
+.page[data-organic-page] :global(.material-heading) { top:110px; bottom:auto; color:var(--foundry-green); opacity:1; text-shadow:none; }
+.page[data-organic-page] :global(.material-heading .eyebrow) { color:var(--culture-green); }
+.page[data-organic-page] :global(.material-heading h2) { max-width:560px; }
+.page[data-organic-page] :global(.material-caption) { color:var(--foundry-green); background:transparent; border:0; }
+.page[data-organic-page] :global(.material-disclaimer) { color:var(--culture-green); }
+.page[data-organic-page] :global(.team-collective) { background:transparent; color:var(--foundry-green); }
+.page[data-organic-page] :global(.team-heading .eyebrow),.page[data-organic-page] :global(.team-number),.page[data-organic-page] :global(.team-monogram) { color:var(--culture-green); }
+.page[data-organic-page] :global(.team-heading h2 span) { color:var(--growth-green); }
+.page[data-organic-page] :global(.collective-word) { color:var(--foundry-green); mix-blend-mode:normal; }
+.page[data-organic-page] :global(.collective-orbits i) { border-color:#4a674166; box-shadow:none; }
+.page[data-organic-page] :global(.team-line) { background:#4a674166; }
+.page[data-organic-page] :global(.team-member[aria-pressed="true"] .team-line) { background:var(--foundry-green); }
+.page[data-organic-page] :global(.team-member:focus-visible) { outline-color:var(--foundry-green); }
+.page[data-organic-page] :global(.condition-action:disabled) { opacity:.5; cursor:default; }
+.page[data-world="static"] :global(.material-stage) { height:130svh; }
+@media(max-width:700px) {
+  .page[data-organic-page] :global(.cultivation) { height:125svh; }
+  .page[data-organic-page] :global(.cultivation-frame) { padding-top:90px; }
+  .page[data-organic-page] :global(.cultivation .narrative-copy) { margin-top:27vh; max-width:100%; }
+  .page[data-organic-page] :global(.material-heading) { top:95px; }
+  .page[data-organic-page] :global(.material-heading h2) { font-size:clamp(45px,12vw,64px); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .page[data-organic-page] :global(.cultivation-frame) { position:relative; }
+}

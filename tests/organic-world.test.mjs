@@ -8,6 +8,11 @@ const seed=url(await compile("../living-foundry/seed.ts"));
 const {GrowthField}=await import(url((await compile("../organic-world/field.ts")).replace("../living-foundry/seed",seed)));
 const three=new URL("../node_modules/three/build/three.module.js",import.meta.url).href;
 const {poseAt}=await import(url((await compile("../organic-world/camera.ts")).replace('"three"',JSON.stringify(three))));
+const {journeyAt,reviewStops}=await import(url(await compile("../organic-world/journey.ts")));
+const {focalCell,CELL_CENTER}=await import(url((await compile("../organic-world/focal-cell.ts"))
+  .replace('"three"',JSON.stringify(three))
+  .replace('"three/examples/jsm/utils/BufferGeometryUtils.js"',JSON.stringify(new URL("../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js",import.meta.url).href))
+  .replace("../living-foundry/seed",seed)));
 
 test("organic field is deterministic and input cannot directly deform the organism",()=>{
   const a=new GrowthField(48),b=new GrowthField(48);
@@ -44,4 +49,48 @@ test("the camera follows one bounded continuous and reversible spatial path",()=
     assert.deepEqual(poseAt(.5,aspect),poseAt(.5,aspect));
     assert.ok(poseAt(1,aspect).position.z<-4,"camera crosses the original aperture");
   }
+});
+
+test("the page reaches the destination before applications and retains the same world afterward",()=>{
+  const anchors={life:900,conditions:1755,foundry:2610,cultivation:3600,material:4950,applications:8910,end:15200};
+  const stops=reviewStops(anchors,900);
+  assert.ok(stops.every((s,i)=>s<anchors.applications&&(i===0||s>stops[i-1])));
+  let previous=0;
+  for(let y=0;y<anchors.end;y+=5){
+    const p=journeyAt(y,900,anchors);
+    assert.ok(p.progress>=previous&&p.progress<=1);
+    if(y<stops[3])assert.equal(p.settle,0,"settling must not hide the approaching cell");
+    previous=p.progress;
+  }
+  assert.equal(journeyAt(anchors.applications+900,900,anchors).progress,1);
+  assert.equal(journeyAt(anchors.applications+900,900,anchors).settle,1);
+});
+
+test("the focal cell has finite volumetric geometry and shares the delayed condition footprint",()=>{
+  const {body,fibers}=focalCell(.5);
+  try {
+    for(const g of [body,fibers]){
+      const p=g.getAttribute("position");
+      assert.ok(p.count>1000);
+      assert.ok(p.array.every(Number.isFinite));
+      assert.ok(g.getIndex().array.every(i=>i<p.count));
+      assert.equal(g.getAttribute("growthDirection").count,p.count);
+    }
+    body.computeBoundingBox();
+    assert.ok(body.boundingBox.max.z-body.boundingBox.min.z>.4,"cell must have depth, not a flat face");
+    for(const p of [0,.34,.69,1])assert.ok(CELL_CENTER.z<poseAt(p,1.6).position.z,"cell stays ahead of the approved camera");
+    const control=new GrowthField(48),treated=new GrowthField(48),uv=body.getAttribute("uv");
+    const difference=()=>{
+      let sum=0;
+      for(let i=0;i<uv.count;i+=13){
+        const x=Math.floor(uv.getX(i)*48),y=Math.floor(uv.getY(i)*48),k=y*48+x;
+        sum+=Math.abs(treated.morphology[k]-control.morphology[k]);
+      }
+      return sum;
+    };
+    treated.addCondition(.7,.61);
+    assert.equal(difference(),0,"input must not immediately deform the cell");
+    for(let i=0;i<360;i++){treated.step(1/30);control.step(1/30);}
+    assert.ok(difference()>.1,"the cell's own vertices must sample the delayed biological change");
+  } finally { body.dispose();fibers.dispose(); }
 });
