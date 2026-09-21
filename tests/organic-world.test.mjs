@@ -8,6 +8,10 @@ const seed=url(await compile("../living-foundry/seed.ts"));
 const {GrowthField}=await import(url((await compile("../organic-world/field.ts")).replace("../living-foundry/seed",seed)));
 const three=new URL("../node_modules/three/build/three.module.js",import.meta.url).href;
 const {poseAt}=await import(url((await compile("../organic-world/camera.ts")).replace('"three"',JSON.stringify(three))));
+const cameraUrl=url((await compile("../organic-world/camera.ts")).replace('"three"',JSON.stringify(three)));
+const {cellPoseAt,cellReviewViews}=await import(url((await compile("../organic-world/cell-camera.ts")).replace('"three"',JSON.stringify(three)).replace('"./camera"',JSON.stringify(cameraUrl))));
+const {CellMaturation}=await import(url(await compile("../organic-world/cell-growth.ts")));
+const THREE=await import(three);
 const {journeyAt,reviewStops}=await import(url(await compile("../organic-world/journey.ts")));
 const {focalCell,CELL_CENTER}=await import(url((await compile("../organic-world/focal-cell.ts"))
   .replace('"three"',JSON.stringify(three))
@@ -93,4 +97,70 @@ test("the focal cell has finite volumetric geometry and shares the delayed condi
     for(let i=0;i<360;i++){treated.step(1/30);control.step(1/30);}
     assert.ok(difference()>.1,"the cell's own vertices must sample the delayed biological change");
   } finally { body.dispose();fibers.dispose(); }
+});
+
+
+test("cell maturation is delayed, non-uniform, persistent, and bounded",()=>{
+  const controlField=new GrowthField(48),treatedField=new GrowthField(48);
+  const control=new CellMaturation(48),treated=new CellMaturation(48);
+  treatedField.addCondition(.7,.61);
+  assert.deepEqual(treated.values,control.values,"input has no direct maturation path");
+  const difference=()=>treated.values.reduce((sum,v,i)=>sum+Math.abs(v-control.values[i]),0);
+  for(let i=0;i<3600;i++){
+    controlField.step(1/30);treatedField.step(1/30);
+    control.step(1/30,controlField);treated.step(1/30,treatedField);
+    if(i===0)assert.ok(difference()<.00001,"first response must be imperceptible");
+  }
+  assert.ok(difference()>.2,"delayed treatment changes accumulated tissue development");
+  assert.ok(treated.summary().max-treated.summary().min>.1,"different regions must mature at different rates");
+  assert.ok(treated.values.every(v=>v>=0&&v<=1&&Number.isFinite(v)));
+  const frozen=treated.values.slice();treated.step(0,treatedField);assert.deepEqual(treated.values,frozen);
+  treated.step(1/30,treatedField);assert.ok(treated.values.every((v,i)=>v>=frozen[i]),"deposition is retained after an input decays");
+});
+
+test("changing camera progression alone cannot advance biology or maturation",()=>{
+  const field=new GrowthField(48),cell=new CellMaturation(48),beforeBio=field.morphology.slice(),beforeCell=cell.values.slice();
+  for(let i=0;i<1000;i++)cellPoseAt((Math.sin(i)*.5+.5),1.6);
+  assert.deepEqual(field.morphology,beforeBio);assert.deepEqual(cell.values,beforeCell);
+  assert.equal(cell.seconds,0);
+});
+
+test("cell approach preserves A and B, approaches the cell physically, and has measurable parallax",()=>{
+  for(const p of [0,.1,.2,.34])assert.deepEqual(cellPoseAt(p,1.6),poseAt(p,1.6));
+  let last=cellPoseAt(0,1.6).position;
+  for(let i=1;i<=2000;i++){
+    const pose=cellPoseAt(i/2000,1.6);
+    assert.ok(pose.position.distanceTo(last)<.07,"no jump in the terminal approach");
+    assert.ok(pose.position.distanceTo(pose.target)>.5,"camera remains outside the destination");last=pose.position;
+  }
+  const c=cellPoseAt(.69,1.6),d=cellPoseAt(1,1.6);
+  assert.ok(d.position.distanceTo(CELL_CENTER)<c.position.distanceTo(CELL_CENTER)*.6);
+  assert.ok(d.position.z<-5,"camera physically advances beyond the old endpoint");
+  const view=cellReviewViews.medium;
+  const project=(dx)=>{
+    const camera=new THREE.PerspectiveCamera(38,1.6,.035,90);
+    camera.position.fromArray(view.position);camera.position.x+=dx;camera.lookAt(new THREE.Vector3(...view.target));camera.updateMatrixWorld();
+    return [-5.2,-5.8,-6.13,-8.3].map(z=>new THREE.Vector3(2.98,-.12,z).project(camera).x);
+  };
+  const a=project(-.045),b=project(.045),motion=a.map((x,i)=>b[i]-x);
+  assert.ok(Math.max(...motion)-Math.min(...motion)>.04,"layers must move at measurably different rates");
+});
+
+test("mature cell geometry changes pores, wall and fibers without a uniform scale",()=>{
+  const cell=focalCell(.5);
+  try{
+    for(const g of Object.values(cell)){
+      const base=g.getAttribute("position"),mature=g.getAttribute("maturePosition"),stage=g.getAttribute("development");
+      assert.equal(base.count,mature.count);assert.equal(stage.count,base.count);
+      assert.ok(mature.array.every(Number.isFinite));
+      let nonradial=0,still=0,changed=0;
+      for(let i=0;i<base.count;i+=31){
+        const p=new THREE.Vector3().fromBufferAttribute(base,i),delta=new THREE.Vector3().fromBufferAttribute(mature,i).sub(p);
+        if(delta.length()<.00001)still++;else changed++;
+        if(delta.clone().cross(p.sub(CELL_CENTER).normalize()).length()>.002)nonradial++;
+      }
+      assert.ok(changed>100);assert.ok(nonradial>50,"growth must include pore rims, folds and directional fiber extension");
+      if(g===cell.body)assert.ok(still>0,"outer tissue anchors must remain fixed");
+    }
+  }finally{Object.values(cell).forEach(g=>g.dispose());}
 });

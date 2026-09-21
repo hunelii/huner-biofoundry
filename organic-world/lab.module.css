@@ -38,3 +38,6 @@
  .header span:last-child { max-width:110px; text-align:right; line-height:1.4; }
  .intro { top:44%; }
 }
+
+/* Opt-in local review uses the same scene, with the study UI outside captures. */
+.lab[data-cell-review] > :not(canvas) { visibility:hidden; }
