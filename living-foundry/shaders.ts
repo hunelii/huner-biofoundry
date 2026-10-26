@@ -51,9 +51,8 @@ uniform float stage, aspect, boundary, debugView, verticalOffset, time, viewScal
 uniform vec2 screenCenter;
 uniform float conditionsView;
 uniform vec2 texel;
-uniform sampler2D cellScene;
-uniform float scenePresence, cameraApproach, cameraCenter;
-uniform float materialProgress, materialReady, tissue;
+uniform sampler2D materialPhoto;
+uniform float materialProgress, materialReady, photoAspect, tissue;
 uniform vec2 materialFocus;
 // Shared concentration creates connected sheets at several spatial scales.
 float tissueHeight(vec2 p) {
@@ -64,11 +63,11 @@ float tissueHeight(vec2 p) {
 }
 void main(){
  float progress=materialProgress;
- float expansion=cameraApproach;
+ float expansion=smoothstep(0.,.58,progress);
  // Texture and 3D specimen share a focal point and one camera approach.
  vec2 origin=screenCenter+(materialFocus-vec2(.698,.61))*viewScale+vec2(0.,verticalOffset);
- vec2 focal=mix(origin,vec2(.5,aspect<.7?.57:.51),cameraCenter);
- vec2 fieldUv=materialFocus+(vUv-focal)/(viewScale*pow(6.2,expansion));
+ vec2 focal=mix(origin,vec2(.5,aspect<.7?.55:.52),smoothstep(.02,.5,progress));
+ vec2 fieldUv=materialFocus+(vUv-focal)/(viewScale*mix(1.,4.8,expansion));
  float b=tissue>.001 ? tissueHeight(fieldUv) : texture2D(biologyField,fieldUv).g;
  float rightDissolve=smoothstep(.55,.98,vUv.x)*conditionsView;
  if(conditionsView>.001) {
@@ -144,14 +143,15 @@ void main(){
    opacity*=1.-smoothstep(.18,.37,distance);
  }
  if(debugView>0.5){float e=texture2D(environmentField,fieldUv).g;gl_FragColor=vec4(vec3(55.,79.,47.)/255.,e*.9);return;}
- if(materialReady>.5 && scenePresence>.001){
-   vec4 specimen=texture2D(cellScene,vUv);
-   vec3 surface=linearToOutputTexel(vec4(max(specimen.rgb/max(specimen.a,.0001),vec3(0.)),1.)).rgb;
-   float coverage=specimen.a*scenePresence;
-   // Ordinary depth coverage: the same modeled wall is present before approach.
-   // The biological field stays visible wherever the geometry leaves open space.
-   float combined=coverage+opacity*(1.-coverage);
-   color=(surface*coverage+color*opacity*(1.-coverage))/max(combined,.0001);
+ if(progress>0. && materialReady>.5){
+   vec2 imageUv=(vUv-.5)*vec2(min(1.,aspect/photoAspect),min(1.,photoAspect/aspect))+.5;
+   vec4 specimen=texture2D(materialPhoto,imageUv);
+   vec3 photo=linearToOutputTexel(vec4(max(specimen.rgb,vec3(0.)),1.)).rgb;
+   float reveal=smoothstep(.10,.50,progress)*specimen.a;
+   opacity*=1.-smoothstep(.12,.55,progress);
+   // The closed wall emerges in place, then opens as the camera reaches it.
+   float combined=reveal+opacity*(1.-reveal);
+   color=(photo*reveal+color*opacity*(1.-reveal))/max(combined,.0001);
    opacity=combined;
  }
  gl_FragColor=vec4(color,opacity);

@@ -2,6 +2,8 @@
 
 26 Ekim 2026 · `feature/scientific-content`
 
+**Sonraki düzeltme:** Bu ilk kontrol hücrenin son görüntüsünü doğruladı, fakat canlı yayındaki geçişi bütünüyle doğrulamamıştı. Kullanıcının düzeltmesi üzerine yaklaşma, açılma ve bölümden çıkış canlı sürümle eşleştirildi. Güncel kaynak ve kontrol kaydı: [Yayımlanmış geçişin geri alınması](PUBLISHED-TRANSITION-RESTORATION.md). Aşağıdaki ilk incelemeye ait GitHub erişim kısıtı da daha sonra Git CLI ile giderildi.
+
 ## Geliştirilen sürüm
 
 Çalışma, GitHub'a son aktarıldığı doğrulanan `b4a96ee3f3820698c83eb66e6b32fb8dea6ecf38` kaydından devam eder. Ana sayfa mevcut `FoundryExperience` ve `LivingFoundryCanvas` kullanır. Organic World laboratuvarı ana sayfaya taşınmadı. Hücre geometrisi, malzemeleri, shader'ları, büyüme kuralları ve kamera güzergâhı değiştirilmedi.

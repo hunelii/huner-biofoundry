@@ -76,13 +76,13 @@ test("cell wall opens only after the approach starts, with inspection at the end
   assert.equal(cellJourney(.2).opening,0);
   assert.ok(cellJourney(.2).approach>0);
   assert.equal(cellJourney(0).heading,1);
-  assert.equal(cellJourney(.60).opening,1);
-  assert.equal(cellJourney(.60).inspect,1);
-  assert.equal(cellJourney(1).opening,0);
-  assert.equal(cellJourney(1).approach,0);
-  assert.equal(cellJourney(1).center,0);
+  assert.ok(cellJourney(.60).opening > 0 && cellJourney(.60).opening < 1);
+  assert.equal(cellJourney(.60).inspect,0);
+  assert.equal(cellJourney(1).opening,1);
+  assert.equal(cellJourney(1).approach,1);
+  assert.equal(cellJourney(1).center,1);
+  assert.equal(cellJourney(1).inspect,1);
   assert.equal(cellJourney(1).heading,0);
-  for(const p of [.75,.85,.98,1]) assert.equal(cellJourney(p).labels,0);
 });
 
 const { phenotype, approach } = await load("../living-foundry/phenotypes.ts");
@@ -104,10 +104,15 @@ test("material exit is continuous and reverse scroll restores the reveal", () =>
   assert.equal(materialWindow(1900, 1000, 2800, 1000).progress, .5);
   for (let scroll = 900; scroll <= 4500; scroll += 50) {
     const view = materialWindow(scroll, 1000, 2800, 1000);
-    assert.equal(view.opacity, 1, "the field cannot black out at a chapter boundary");
-    assert.equal(view.offset, 0, "model stays in the shared world, not a sliding image plane");
+    assert.ok(view.opacity >= 0 && view.opacity <= 1);
+    assert.ok(view.offset <= 0);
     assert.ok(view.progress >= 0 && view.progress <= 1);
   }
+  assert.equal(materialWindow(2800,1000,2800,1000).opacity,1);
+  assert.equal(materialWindow(3300,1000,2800,1000).opacity,.5);
+  assert.equal(materialWindow(3300,1000,2800,1000).offset,-500);
+  assert.equal(materialWindow(3800,1000,2800,1000).opacity,0);
+  assert.equal(materialWindow(4350,1000,2800,1000).opacity,1);
   assert.equal(materialWindow(3300, 1000, 2800, 1000).progress, 1);
   const forward=[1000,1900,2300,2799,2800,3300,3799,3800].map(scroll=>cellJourney(materialWindow(scroll,1000,2800,1000).progress));
   const reverse=[3800,3799,3300,2800,2799,2300,1900,1000].map(scroll=>cellJourney(materialWindow(scroll,1000,2800,1000).progress)).reverse();
@@ -120,18 +125,17 @@ test("phone intervention excludes drags and long presses", () => {
   assert.equal(contactIsTap(0, 600), false);
 });
 const { fieldView, screenToField, fieldToScreen } = await load("../living-foundry/composition.ts");
-const { cellOrigin } = await load("../living-foundry/material-transition.ts");
-test("the selected oval keeps its identity across desktop and phone compositions", () => {
-  for(const phone of [false,true]) {
-    const origin=cellOrigin(phone);
-    for(const stage of [2,3,4,5]) {
-      const field=fieldView(stage,phone);
-      const point=fieldToScreen(screenToField(origin,field),field);
-      assert.ok(Math.abs(point.x-origin.x)<1e-12);
-      assert.ok(Math.abs(point.y-origin.y)<1e-12);
-    }
+test("the published approach keeps advancing into the open cell instead of pulling back", () => {
+  let previous=cellJourney(0);
+  for(let step=1;step<=100;step++) {
+    const current=cellJourney(step/100);
+    for(const key of ['approach','center','opening','inspect']) assert.ok(current[key]>=previous[key],`${key} reversed at ${step}%`);
+    previous=current;
   }
-  assert.ok(cellOrigin(true).y>.65, "phone oval stays above the narrative copy");
+  assert.ok(cellJourney(.5).approach<1,"the approach must continue through the second half");
+  assert.equal(cellJourney(.76).approach,1);
+  assert.equal(cellJourney(.67).opening,1);
+  assert.equal(cellJourney(.68).inspect,0);
 });
 test("environment input and cell origin stay aligned through the Conditions composition", () => {
   for (const phone of [false,true]) for (const stage of [0,1.4,2,2.6,3,5]) {

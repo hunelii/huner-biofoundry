@@ -50,7 +50,7 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       e.tissue = scrollY < material.offsetTop + material.offsetHeight ? clamp((scrollY - cultivation.offsetTop + innerHeight * .2) / Math.max(1, cultivation.offsetHeight - innerHeight * .5)) : 0;
       cultivation.style.setProperty("--tissue", String(e.tissue));
       cultivation.dataset.phase = e.tissue < .33 ? "connect" : e.tissue < .7 ? "concentrate" : "become";
-      if (scrollY + innerHeight * 2 > document.getElementById("conditions")!.offsetTop) e.loadMaterial();
+      if (scrollY + innerHeight * 3 > material.offsetTop) e.loadMaterial();
       const milestones = document.getElementById("milestones")!;
       e.visible = scrollY < milestones.offsetTop;
       canvas.current!.style.opacity = !e.visible ? "0" : String(windowState.opacity);
@@ -72,7 +72,6 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       setStatus(reason);
       // Collapsing the pinned sequence must not throw the reader into another chapter.
       if (hadEngine && anchor) window.scrollBy({ top: anchor.getBoundingClientRect().top - before, behavior: "instant" });
-      if (!hadEngine) document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "instant" });
       stage();
     };
     const start = async () => {
@@ -92,8 +91,6 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
         const anchor = document.getElementById(location.hash.slice(1));
         if (anchor) anchor.scrollIntoView({ behavior: "instant" });
         stage();
-        e.visualStage = e.stage;
-        e.render();
       } catch {
         if (!disposed) fallback("gpu-unavailable");
       }

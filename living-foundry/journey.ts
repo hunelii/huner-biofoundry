@@ -4,8 +4,9 @@ export function materialWindow(scroll: number, top: number, height: number, view
   const end = top + height;
   const active = scroll >= top && scroll < end;
   const progress = active ? clamp((scroll - top) / Math.max(1, height - viewport)) : 0;
-  // Camera travel provides the exit. The living canvas never blanks between chapters.
-  const opacity = 1, offset = 0;
+  const opacity = scroll < end ? 1 - clamp((scroll - (end - viewport)) / viewport) : clamp((scroll - end) / (viewport * 0.55));
+  // During release the model follows the same sticky frame as its annotations.
+  const offset = active ? Math.min(0, end - viewport - scroll) : 0;
   return { active, progress, opacity, offset };
 }
 export function contactIsTap(distance: number, duration: number) {

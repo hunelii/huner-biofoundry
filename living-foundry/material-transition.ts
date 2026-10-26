@@ -25,19 +25,11 @@ export function settleCellProgress(current: number, target: number, seconds: num
 
 export function cellJourney(progress: number) {
   const p = Math.max(0, Math.min(1, progress));
-  const release = smoothRange(.70, .98, p);
   return {
-    approach: smoothRange(.02, .50, p) * (1 - release),
-    center: smoothRange(.02, .38, p) * (1 - release),
-    opening: smoothRange(.28, .52, p) * (1 - smoothRange(.70, .86, p)),
-    inspect: smoothRange(.48, .58, p) * (1 - smoothRange(.64, .74, p)),
-    heading: 1 - smoothRange(.03, .20, p),
-    labels: smoothRange(.44, .57, p) * (1 - smoothRange(.64, .74, p)),
-    release,
+    approach: smoothRange(.02, .76, p),
+    center: smoothRange(.02, .5, p),
+    opening: smoothRange(.32, .67, p),
+    inspect: smoothRange(.68, 1, p),
+    heading: 1 - smoothRange(.03, .27, p),
   };
-}
-
-/** The small oval sits at the lower right of the opening, above phone copy. */
-export function cellOrigin(phone: boolean) {
-  return { x: phone ? .67 : .78, y: phone ? .72 : .38 };
 }

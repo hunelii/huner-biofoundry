@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import type { FungalCell } from "./FungalCell";
 import { cellRenderSize } from "./cell-quality";
-import { cellJourney, cellOrigin, smoothRange, settleCellProgress } from "./material-transition";
-import { fieldView, screenToField } from "./composition";
+import { cellJourney, settleCellProgress } from "./material-transition";
+import { fieldView, screenToField, fieldToScreen } from "./composition";
 import { phenotype, approach } from "./phenotypes";
 import { vertex, environment, biology, display } from "./shaders";
 import { seedField } from "./seed";
@@ -40,8 +40,6 @@ export class FoundryEngine {
   materialProgress = 0;
   materialTarget = 0;
   private materialPastEnd = false;
-  private fieldRevision = 0;
-  private materialStage = 4;
   private materialElement: HTMLElement | null = null;
   tissue = 0;
   materialRequested = false;
@@ -118,12 +116,10 @@ export class FoundryEngine {
       verticalOffset: { value: innerWidth <= 600 ? 0.16 : 0 },
       materialProgress: { value: 0 },
       tissue: { value: 0 },
-      cellScene: { value: null },
+      materialPhoto: { value: null },
       materialReady: { value: 0 },
+      photoAspect: { value: 1.25 },
       materialFocus: { value: new THREE.Vector2(0.698, 0.61) },
-      scenePresence: { value: 0 },
-      cameraApproach: { value: 0 },
-      cameraCenter: { value: 0 },
     });
     this.displayMaterial.transparent = true;
     this.copyMaterial = make(
@@ -151,7 +147,9 @@ export class FoundryEngine {
         if (!cell) return;
         if (this.disposed || this.failed) { cell.dispose(); return; }
         this.cell = cell;
-        this.displayMaterial.uniforms.cellScene.value = cell.target.texture;
+        this.displayMaterial.uniforms.materialPhoto.value = cell.target.texture;
+        const pixels = cellRenderSize(innerWidth, innerHeight, devicePixelRatio, matchMedia("(pointer:coarse)").matches, this.budget.degraded);
+        cell.render(this.renderer, 0, pixels.width, pixels.height);
         if (this.failed) return;
         this.displayMaterial.uniforms.materialReady.value = 1;
         document.documentElement.dataset.materialReady = "true";
@@ -167,18 +165,16 @@ export class FoundryEngine {
   }
   setMaterialTarget(progress: number, pastEnd: boolean) {
     const previous = this.materialProgress;
-    if (progress === 0 && previous > 0 && !pastEnd) this.visualStage = this.materialStage;
     this.materialTarget = progress;
     this.materialElement ??= document.getElementById("material");
     if (this.materialElement) this.materialElement.dataset.target = progress.toFixed(3);
-    // Both ends of the chapter share the same exterior camera pose.
+    // Match the published exit: restore the field while the cell layer is faded out.
     if (pastEnd) this.materialProgress = 0;
     else if (this.paused || this.materialPastEnd) this.materialProgress = this.cell ? progress : Math.min(.045, progress);
     this.materialPastEnd = pastEnd;
     return previous !== this.materialProgress;
   }
   captureMaterial() {
-    this.materialStage = Math.max(3.8,Math.min(4.5,this.visualStage));
     this.materialSnapshot = new THREE.WebGLRenderTarget(
       this.width,
       this.height,
@@ -191,7 +187,23 @@ export class FoundryEngine {
     );
     this.copyMaterial.uniforms.source.value = this.bio[0].texture;
     this.pass(this.copyMaterial, this.materialSnapshot);
-    this.renderer.domElement.dataset.materialFocus = "procedural-cell";
+    // The published approach follows occupied biology, rather than a fixed screen point.
+    const cells = new Uint16Array(this.width * this.height * 4);
+    this.renderer.readRenderTargetPixels(this.bio[0], 0, 0, this.width, this.height, cells);
+    let best = -Infinity;
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        const b = THREE.DataUtils.fromHalfFloat(cells[(y * this.width + x) * 4 + 1]);
+        if (b < 0.2) continue;
+        const right = THREE.DataUtils.fromHalfFloat(cells[(y * this.width + Math.min(this.width - 1, x + 1)) * 4 + 1]);
+        const score = Math.abs(right - b) * 3 + Math.min(b, .3) - Math.hypot(x / this.width - .698, y / this.height - .61);
+        if (score > best) {
+          best = score;
+          this.displayMaterial.uniforms.materialFocus.value.set((x + .5) / this.width, (y + .5) / this.height);
+        }
+      }
+    }
+    this.renderer.domElement.dataset.materialFocus = String(best);
   }
   pass(material: THREE.ShaderMaterial, target: THREE.WebGLRenderTarget | null) {
     this.mesh.material = material;
@@ -227,7 +239,6 @@ export class FoundryEngine {
         depthBuffer: false,
         stencilBuffer: false,
       });
-    this.fieldRevision++;
     this.env = [target(), target()];
     this.bio = [target(), target()];
     this.envMaterial.uniforms.texel.value.set(1 / w, 1 / h);
@@ -245,7 +256,6 @@ export class FoundryEngine {
     this.render();
   };
   reset = () => {
-    this.fieldRevision++;
     this.materialSnapshot?.dispose();
     this.materialSnapshot = null;
     const texture = new THREE.DataTexture(
@@ -293,13 +303,8 @@ export class FoundryEngine {
   }
   render() {
     if (this.failed || this.disposed) return;
-    const renderStarted = performance.now();
-    if (this.materialProgress === 0 && this.materialSnapshot) {
-      this.materialSnapshot.dispose(); this.materialSnapshot = null;
-    }
     const journey = cellJourney(this.materialProgress);
-    const scenePresence = smoothRange(3.9, 4.25, this.visualStage) * (1 - smoothRange(6, 6.8, this.visualStage));
-    const cellView = this.cell && scenePresence > .001;
+    const cellView = this.cell && this.materialProgress > 0;
     const pixels = cellRenderSize(innerWidth, innerHeight, devicePixelRatio, matchMedia("(pointer:coarse)").matches, this.budget.degraded || this.cellBudget.degraded);
     const ratio = cellView ? pixels.ratio : Math.min(devicePixelRatio, this.budget.degraded ? 1 : this.quality.dpr);
     if (Math.abs(this.renderer.getPixelRatio() - ratio) > .001) {
@@ -315,7 +320,7 @@ export class FoundryEngine {
     const source = this.materialProgress > 0 ? this.materialSnapshot : null;
     this.displayMaterial.uniforms.texel.value.set(1 / (source?.width ?? this.width), 1 / (source?.height ?? this.height));
     this.displayMaterial.uniforms.environmentField.value = this.env[0].texture;
-    const displayStage = this.materialProgress > 0 ? this.materialStage + (this.visualStage - this.materialStage) * journey.release : this.visualStage;
+    const displayStage = this.visualStage;
     this.displayMaterial.uniforms.stage.value = displayStage;
     this.displayMaterial.uniforms.time.value = this.elapsed;
     this.composition = fieldView(displayStage, innerWidth <= 600);
@@ -325,29 +330,25 @@ export class FoundryEngine {
     this.displayMaterial.uniforms.conditionsView.value = this.composition.conditions;
     this.displayMaterial.uniforms.tissue.value = this.tissue;
     this.displayMaterial.uniforms.materialProgress.value = this.materialProgress;
-    this.displayMaterial.uniforms.cameraApproach.value = journey.approach;
-    this.displayMaterial.uniforms.cameraCenter.value = journey.center;
-    this.displayMaterial.uniforms.scenePresence.value = scenePresence;
-    const origin = cellOrigin(innerWidth <= 600);
-    const focus = screenToField(origin, this.composition);
-    this.displayMaterial.uniforms.materialFocus.value.set(focus.x, focus.y);
     this.materialElement ??= document.getElementById("material");
     if (this.materialElement) {
       this.materialElement.style.setProperty("--material-progress", String(this.materialProgress));
       this.materialElement.style.setProperty("--heading-opacity", String(journey.heading));
-      this.materialElement.style.setProperty("--annotation-opacity", String(journey.labels));
       this.materialElement.dataset.progress = this.materialProgress.toFixed(3);
     }
     this.displayMaterial.uniforms.boundary.value = this.boundary;
     this.displayMaterial.uniforms.debugView.value = this.settings.view;
     if (this.cell && cellView) {
+      const focus = this.displayMaterial.uniforms.materialFocus.value as THREE.Vector2;
+      const origin = fieldToScreen(focus, this.composition);
       const ms = this.cell.render(this.renderer, this.materialProgress, pixels.width, pixels.height, origin);
       if (typeof ms === "number") {
-        const decision = this.cellBudget.observe(performance.now()-renderStarted);
+        const decision = this.cellBudget.observe(ms);
         if (decision === "fallback") { this.fallback("cell-performance"); return; }
       }
       this.displayMaterial.uniforms.materialReady.value = 1;
       document.documentElement.dataset.materialReady = "true";
+      this.displayMaterial.uniforms.photoAspect.value = innerWidth / innerHeight;
     }
     this.pass(this.displayMaterial, null);
   }
@@ -373,11 +374,7 @@ export class FoundryEngine {
       // Hold the field while the model warms, then resolve both layers on one timeline.
       const target = this.cell ? this.materialTarget : Math.min(.045, this.materialTarget);
       const next = settleCellProgress(this.materialProgress, target, delta);
-      const previousStage = this.visualStage;
-      this.visualStage = approach(this.visualStage, this.stage, delta * 3);
-      // A fast chapter jump can settle the camera before the cell becomes visible.
-      // Keep drawing the chapter blend until it settles as well.
-      if (next !== this.materialProgress || Math.abs(this.visualStage - previousStage) > .00001) {
+      if (next !== this.materialProgress) {
         this.materialProgress = next;
         this.render();
       }
