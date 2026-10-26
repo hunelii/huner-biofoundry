@@ -373,8 +373,11 @@ export class FoundryEngine {
       // Hold the field while the model warms, then resolve both layers on one timeline.
       const target = this.cell ? this.materialTarget : Math.min(.045, this.materialTarget);
       const next = settleCellProgress(this.materialProgress, target, delta);
+      const previousStage = this.visualStage;
       this.visualStage = approach(this.visualStage, this.stage, delta * 3);
-      if (next !== this.materialProgress) {
+      // A fast chapter jump can settle the camera before the cell becomes visible.
+      // Keep drawing the chapter blend until it settles as well.
+      if (next !== this.materialProgress || Math.abs(this.visualStage - previousStage) > .00001) {
         this.materialProgress = next;
         this.render();
       }

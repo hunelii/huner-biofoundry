@@ -50,7 +50,7 @@ export default function MilestoneJourney({ paused }: { paused: boolean }) {
       <p className="sr-only" role="status">{ready ? `${milestones[active].title}. ${milestones[active].result}.` : ""}</p>
       <ol className="milestone-list">{milestones.map((m, i) => <li id={`milestone-${m.id}`} key={m.id} data-active={i === active} hidden={ready && i !== active}>
         <div className="milestone-detail-heading"><span className="milestone-record" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span><p className="milestone-category">{m.category}</p></div>
-        <h3>{m.title}</h3><p className="milestone-result">{m.result}</p><p className="milestone-description">{m.copy}</p>
+        <h3>{m.title}</h3><p className="milestone-result">{m.result}</p><p className="milestone-description">{m.copy}<br /><small>Huner-supplied record · event date unconfirmed.</small><br /><a className="text-link" href="/progress/">Read the evidence & status ↗</a></p>
       </li>)}</ol>
       <div className="milestone-controls" hidden={!ready}>
         <button className="overview-control" aria-pressed={overview} onClick={() => setOverview(!overview)}>{overview ? "Take a closer look ↗" : "See the whole journey ↖"}</button>

@@ -1,6 +1,6 @@
 "use client";
-import { useState, type ComponentType } from "react";
-import { site } from "@/lib/site";
+import { useState, type ComponentType, type ReactNode } from "react";
+import SiteNavigation from "./content/SiteNavigation";
 import dynamic from "next/dynamic";
 import MilestoneJourney from "./MilestoneJourney";
 import TeamCollective from "./TeamCollective";
@@ -8,24 +8,14 @@ const LivingFoundry = dynamic(
   () => import("@/living-foundry/LivingFoundryCanvas"),
   { ssr: false },
 );
-export default function FoundryExperience({ SpatialLayer }: { SpatialLayer?: ComponentType<{ paused: boolean }> } = {}) {
+export default function FoundryExperience({ SpatialLayer, content }: { SpatialLayer?: ComponentType<{ paused: boolean }>; content?: ReactNode } = {}) {
   const [paused, setPaused] = useState(false);
   return (
     <>
       <a className="skip-link" href="#arrival">
         Skip to content
       </a>
-      <header className="brand-header">
-        <a className="wordmark" href="#arrival">
-          <span>HUNER</span> <span>BIOFOUNDRY</span>
-        </a>
-        <nav className="header-links" aria-label="Main navigation">
-          <a className="header-link" href="#life">FOUNDRY ↘</a>
-          <a className="header-link" href="#applications">POSSIBILITIES ↘</a>
-          <a className="header-link people-link" href="#milestones">OUR JOURNEY ↘</a>
-          {site.email && <a className="header-link contact-link" data-track="contact_click" href={`mailto:${site.email}`}>LET’S TALK ↗</a>}
-        </nav>
-      </header>
+      <SiteNavigation home />
       <div className="journey-progress" aria-hidden="true" />
       <main id="arrival" tabIndex={-1}>
         <div className="field-layer" aria-hidden="true">
@@ -43,11 +33,11 @@ export default function FoundryExperience({ SpatialLayer }: { SpatialLayer?: Com
               <span className="life-tone">for life.</span>
             </h1>
             <p>
-              We cultivate living systems to produce food,
-              <br className="desktop-break" /> fragrance and biological raw
-              materials.
+              We study fungal cultivation and the processes
+              <br className="desktop-break" /> behind biological production.
             </p>
-            <a className="arrival-direct" href="#applications">Explore the possibilities ↗</a>
+            <p className="arrival-stage-note">Early-stage research · laboratory, modeling and industry learning.</p>
+            <div className="home-stage-links"><a className="arrival-direct" href="/approach/">Explore our approach ↗</a><a className="arrival-direct" href="/research/">Follow our research ↗</a></div>
           </div>
           <a
             className="scroll-cue"
@@ -71,8 +61,8 @@ export default function FoundryExperience({ SpatialLayer }: { SpatialLayer?: Com
               <br className="phone-break" /> to make.
             </h2>
             <p>
-              Living systems transform simple inputs into complex molecules,
-              structures and materials.
+              Fungi can form biomass, metabolites and fibrous structures.
+              What becomes useful depends on the organism and the application.
             </p>
           </div>
           <p className="side-note">
@@ -122,7 +112,8 @@ export default function FoundryExperience({ SpatialLayer }: { SpatialLayer?: Com
               begins with control.
             </h2>
             <p>
-              We build controlled production systems around living organisms.
+              We investigate how cultivation conditions, measurement and modeling
+              can help us understand fungal production.
             </p>
           </div>
           <div className="foundry-calibration" aria-hidden="true"><span>OPEN FIELD</span><i /><span>CULTIVATED SPACE</span></div>
@@ -179,7 +170,7 @@ export default function FoundryExperience({ SpatialLayer }: { SpatialLayer?: Com
         </section>
         <div className="applications-intro" id="applications">
           <p className="eyebrow">06 / POSSIBILITIES</p>
-          <p>One living approach.<br /><span>Different ways to make.</span></p>
+          <p>Different possibilities.<br /><span>Different process requirements.</span></p>
           <nav aria-label="Explore applications">
             <a data-track="explore_application" href="#food">Food ↘</a>
             <a data-track="explore_application" href="#fragrance">Fragrance ↘</a>
@@ -187,9 +178,9 @@ export default function FoundryExperience({ SpatialLayer }: { SpatialLayer?: Com
           </nav>
         </div>
         {[
-          { id: "food", number: "01", title: "Food", line: "Cultivating nourishment.", copy: "Exploring what living systems can make for the food we eat.", behavior: "ACCUMULATION" },
-          { id: "fragrance", number: "02", title: "Fragrance", line: "Cultivating the invisible.", copy: "Exploring biological production for the molecules we experience as scent.", behavior: "DIFFUSION" },
-          { id: "raw-materials", number: "03", title: "Raw materials", line: "Cultivating what comes next.", copy: "Exploring biological raw materials as starting points for making.", behavior: "STRUCTURE" },
+          { id: "food", number: "01", title: "Food", line: "A possible ingredient begins upstream.", copy: "Biomass composition, safety and consistency matter to a downstream food application. This is a research direction, not an available Huner product.", behavior: "ACCUMULATION" },
+          { id: "fragrance", number: "02", title: "Fragrance", line: "Cultivating the question of aroma.", copy: "A volatile profile needs chemical characterization and application-specific evaluation. Growing biomass alone does not recreate a finished aroma.", behavior: "DIFFUSION" },
+          { id: "raw-materials", number: "03", title: "Raw materials", line: "Structure before transformation.", copy: "Filamentous biomass could be a starting point for materials. Morphology and downstream compatibility remain specific to each application.", behavior: "STRUCTURE" },
         ].map((application) => (
           <section key={application.id} id={application.id} className={`narrative application ${application.id}`} aria-labelledby={`${application.id}-title`}>
             <p className="eyebrow">{application.number} / APPLICATION DIRECTION</p>
@@ -197,16 +188,18 @@ export default function FoundryExperience({ SpatialLayer }: { SpatialLayer?: Com
               <h2 id={`${application.id}-title`}>{application.title}</h2>
               <p className="application-line">{application.line}</p>
               <p>{application.copy}</p>
+              <a className="text-link" href={`/applications/#${application.id}`}>Explore this direction ↗</a>
             </div>
             <p className="behavior-note">{application.behavior}<br /><span>Illustrative living study</span></p>
           </section>
         ))}
+        {content}
         <MilestoneJourney paused={paused} />
         <TeamCollective paused={paused} />
         <section id="possibility" className="closing" aria-labelledby="closing-title">
           <p className="eyebrow">HUNER BIOFOUNDRY</p>
           <h2 id="closing-title">What else<br />can life make?</h2>
-          {site.email && <div className="contact-invitation"><p>Have a question about working with Huner?</p><a data-track="contact_click" href={`mailto:${site.email}?subject=Collaboration%20enquiry`}>Discuss a collaboration ↗</a><p className="contact-email">{site.email}</p></div>}
+          <nav className="closing-research-links" aria-label="Continue exploring"><a href="/research/">Explore research ↗</a><a href="/approach/">Read the methodology ↗</a><a href="/collaborate/">Collaboration directions ↗</a></nav>
           <a href="#arrival">RETURN TO THE SEED ↑</a>
         </section>
       </main>

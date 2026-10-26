@@ -1,0 +1,12 @@
+"use client";
+import { useId, useState } from "react";
+const variables = [
+  { title: "Oxygen & mixing", question: "What reaches the organism?", copy: "Oxygen supply, transfer into the medium and availability within a fungal aggregate are different questions. Increasing a mixing setting does not establish that every part of a culture experiences the same environment.", measurement: "A defined oxygen measurement, equipment conditions and morphology observations.", limit: "Relevant oxygen requirements and acceptable mechanical stress depend on the biological system." },
+  { title: "Nutrients & feedstock", question: "What actually enters the process?", copy: "A feedstock name is not a complete composition. Input variability, pretreatment and available nutrients can matter to the interpretation of growth.", measurement: "Feedstock lot, preparation and composition relevant to the research question.", limit: "Lower purchase price alone does not demonstrate lower total production cost." },
+  { title: "Temperature & pH", question: "Which conditions are being compared?", copy: "Record the environment in which observations were made. Changes in temperature or pH need to be interpreted in the context of organism, medium and measurement timing.", measurement: "A time-resolved record using suitable, checked instruments.", limit: "There is no universal optimum presented here." },
+  { title: "Time & morphology", question: "When does the observation apply?", copy: "Growth, structural development and product formation need not follow the same timing. A single observation can miss a change that matters to the target output.", measurement: "A justified sampling schedule with comparable growth-form observations.", limit: "A visual change is not a calibrated measurement of biomass or metabolite yield." },
+];
+export default function VariablesExplorer() {
+  const [active, setActive] = useState(0), id = useId(), variable = variables[active];
+  return <div className="variables-explorer"><label htmlFor={id}>Explore a cultivation variable</label><select id={id} value={active} onChange={event => setActive(Number(event.target.value))}>{variables.map((item,i) => <option key={item.title} value={i}>{item.title}</option>)}</select><div aria-live="polite"><h3>{variable.question}</h3><p>{variable.copy}</p><p><strong>What to examine:</strong> {variable.measurement}</p><p className="scope-caption">{variable.limit}</p></div><p className="scope-caption">Conceptual explanation. No simulated curve or experimentally calibrated response is shown.</p></div>;
+}

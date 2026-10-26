@@ -11,9 +11,8 @@ export default function Privacy() {
     <p>When optional measurement is available, you can accept, reject or choose each category. Use “Cookie preferences” to change your decision. Your choice is stored in this browser. Rejecting optional measurement does not prevent access to the website.</p>
     <h2>Website operation</h2>
     <p>The hosting provider processes requests needed to deliver the website and may maintain operational and security logs. The interactive living field runs on your device. We do not collect its pointer or touch coordinates.</p>
-    <h2>Contact</h2>
-    <p>If you choose to email Huner, your email application opens and your message is handled separately from website measurement.</p>
-    {site.email && <p>For website or privacy enquiries: <a href={`mailto:${site.email}`}>{site.email}</a>.</p>}
+    <h2>Public contact information</h2>
+    <p>Contact details are not published at this stage. This website does not include an enquiry form.</p>
     <h2>Third-party information</h2>
     <p><a href="https://policies.google.com/privacy">Google Privacy Policy ↗</a><br /><a href="https://www.facebook.com/privacy/policy/">Meta Privacy Policy ↗</a></p>
     <a href="/">Return to Huner ↖</a>

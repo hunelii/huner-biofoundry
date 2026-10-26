@@ -26,4 +26,4 @@ export const site = readSiteConfig({
   VERCEL_ENV: process.env.VERCEL_ENV,
   CONTEXT: process.env.CONTEXT,
 });
-export const description = "Explore Huner Biofoundry: cultivating living systems for food, fragrance and biological raw materials. Making with life, for life.";
+export const description = "Huner Biofoundry is an early-stage biotechnology initiative studying fungal cultivation and bioprocess engineering through laboratory research, mathematical modeling and industry research.";

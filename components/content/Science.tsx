@@ -1,0 +1,16 @@
+import type { ReactNode } from "react";
+import { references } from "@/content/references";
+import { methodology } from "@/content/research";
+export function EvidenceStatus({ children }: { children: ReactNode }) { return <span className="evidence-status">{children}</span>; }
+export function UncertaintyNote({ children }: { children: ReactNode }) { return <aside className="uncertainty-note"><span className="eyebrow">SCOPE & LIMITS</span><p>{children}</p></aside>; }
+export function CitationList({ ids }: { ids: string[] }) {
+  return <ol className="citation-list">{ids.map(id => { const source = references.find(item => item.id === id); if (!source) throw new Error(`Missing reference: ${id}`); return <li key={id}><a href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a><p>{source.attribution}</p><p>{source.scope}</p></li>; })}</ol>;
+}
+export function Methodology() { return <div className="methodology">{methodology.map((stage, i) => <details key={stage.title} className="methodology-stage"><summary><span className="method-number">0{i + 1}</span><span>{stage.title}<small>{stage.question}</small></span><span aria-hidden="true">＋</span></summary><div><p>{stage.copy}</p><p><strong>Evidence to establish:</strong> {stage.evidence}</p></div></details>)}</div>; }
+export function MeasurementTable({ rows }: { rows: { name: string; purpose: string; limitation: string }[] }) {
+  return <div className="table-scroll" role="region" aria-label="Measurement framework" tabIndex={0}><table><caption>Proposed measurements · no experimental results are shown</caption><thead><tr><th scope="col">Measurement</th><th scope="col">What it would tell us</th><th scope="col">Interpretation limit</th></tr></thead><tbody>{rows.map(row => <tr key={row.name}><th scope="row">{row.name}</th><td>{row.purpose}</td><td>{row.limitation}</td></tr>)}</tbody></table></div>;
+}
+export function Glossary() {
+  const terms = [["Organism / strain", "An organism is a living biological system. A strain is a particular lineage or isolate within a species; results should identify the system actually studied."], ["Culture", "An organism growing under defined conditions, together with its cultivation environment."], ["Biomass", "The biological material produced by growth. Any measurement needs a stated sampling and mass basis."], ["Hypha / mycelium", "A hypha is a fungal filament. Mycelium is the network formed by these filaments."], ["Metabolite", "A compound involved in or produced by metabolism. Its concentration needs its own measurement."], ["Substrate / medium", "Substrate can refer to a nutrient used by an organism, or a supporting material in solid cultivation. A medium supplies the environment and ingredients for cultivation."], ["Process / product", "The process is the sequence used to obtain an output. The product is the output intended to meet a particular need."], ["Fermentation", "In bioprocess engineering, the term often describes controlled microbial cultivation, including aerobic processes. Its narrower biochemical meaning describes a metabolic pathway."]];
+  return <div className="glossary">{terms.map(([term, definition]) => <details key={term}><summary>{term}</summary><p>{definition}</p></details>)}</div>;
+}
