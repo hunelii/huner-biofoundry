@@ -30,6 +30,7 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
     let down: { x: number; y: number; at: number } | null = null;
     let resizeTimer: ReturnType<typeof setTimeout>;
     let responseTimer: ReturnType<typeof setTimeout>;
+    const readingSurfaces = [...document.querySelectorAll<HTMLElement>(".science-home")];
     const notice = (text: string) => {
       const el = document.getElementById("condition-status");
       if (el) el.textContent = text;
@@ -52,7 +53,8 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       cultivation.dataset.phase = e.tissue < .33 ? "connect" : e.tissue < .7 ? "concentrate" : "become";
       if (scrollY + innerHeight * 3 > material.offsetTop) e.loadMaterial();
       const milestones = document.getElementById("milestones")!;
-      e.visible = scrollY < milestones.offsetTop;
+      const covered = readingSurfaces.some(surface => { const box = surface.getBoundingClientRect(); return box.top <= 0 && box.bottom >= innerHeight; });
+      e.visible = scrollY < milestones.offsetTop && !covered;
       canvas.current!.style.opacity = !e.visible ? "0" : String(windowState.opacity);
       canvas.current!.style.transform = `translateY(${windowState.offset}px)`;
       canvas.current!.dataset.chapter = chapters[e.stage] ?? "arrival";

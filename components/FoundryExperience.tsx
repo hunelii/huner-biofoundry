@@ -3,6 +3,8 @@ import { useState, type ComponentType, type ReactNode } from "react";
 import ApplicationTrace from "./content/visuals/ApplicationTrace";
 import { VisualMotionContext } from "./content/visuals/VisualMotion";
 import SiteNavigation from "./content/SiteNavigation";
+import CellStudyGuide from "./content/CellStudyGuide";
+import JourneyReadingTheme from "./content/JourneyReadingTheme";
 import dynamic from "next/dynamic";
 import MilestoneJourney from "./MilestoneJourney";
 import TeamCollective from "./TeamCollective";
@@ -10,7 +12,7 @@ const LivingFoundry = dynamic(
   () => import("@/living-foundry/LivingFoundryCanvas"),
   { ssr: false },
 );
-export default function FoundryExperience({ SpatialLayer, content }: { SpatialLayer?: ComponentType<{ paused: boolean }>; content?: ReactNode } = {}) {
+export default function FoundryExperience({ SpatialLayer, content, processContent }: { SpatialLayer?: ComponentType<{ paused: boolean }>; content?: ReactNode; processContent?: ReactNode } = {}) {
   const [paused, setPaused] = useState(false);
   return (
     <VisualMotionContext value={paused}>
@@ -18,6 +20,7 @@ export default function FoundryExperience({ SpatialLayer, content }: { SpatialLa
         Skip to content
       </a>
       <SiteNavigation home />
+      <JourneyReadingTheme />
       <div className="journey-progress" aria-hidden="true" />
       <main id="arrival" tabIndex={-1}>
         <div className="field-layer" aria-hidden="true">
@@ -100,6 +103,7 @@ export default function FoundryExperience({ SpatialLayer, content }: { SpatialLa
             condition <span aria-hidden="true">↗</span>
           </button>
           <p className="response-note" role="status" id="condition-status" />
+          <p className="condition-context">A local influence. A delayed response.<br /><span>Illustrative environmental field, not a calibrated cultivation model.</span></p>
         </section>
         <section
           id="foundry"
@@ -158,18 +162,14 @@ export default function FoundryExperience({ SpatialLayer, content }: { SpatialLa
               <p className="eyebrow">05 / INSIDE LIFE</p>
               <h2 id="material-title">A world<br />within life.</h2>
             </div>
-            <div className="cell-legend" aria-label="Cell structures">
-              <span><i className="wall-key" />Cell wall + membrane</span>
-              <span><i className="nucleus-key" />Nucleus</span>
-              <span><i className="mitochondria-key" />Mitochondria</span>
-              <span><i className="vacuole-key" />Vacuole</span>
-            </div>
+            <CellStudyGuide continueHref={processContent ? "#inquiry" : "/approach/#measurement"} />
             <div className="material-caption">
               <span>FUNGAL CELL / A SCHEMATIC STUDY<br /><span className="material-disclaimer">Not to scale · not a reconstruction of a Huner organism</span></span>
-              <a href="https://openstax.org/books/biology-2e/pages/24-1-characteristics-of-fungi" target="_blank" rel="noreferrer">Explore fungal biology ↗</a>
+              <a href={processContent ? "#inquiry" : "/approach/#measurement"}>From cell to culture ↓</a>
             </div>
           </div>
         </section>
+        {processContent}
         <div className="applications-intro" id="applications">
           <p className="eyebrow">06 / POSSIBILITIES</p>
           <p>Different possibilities.<br /><span>Different process requirements.</span></p>

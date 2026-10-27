@@ -1,0 +1,137 @@
+/* The spatial cell stays intact. Reading surfaces carry its question forward. */
+.post-cell-content { position: relative; z-index: 2; padding-top: 0; }
+html[data-reading-surface="light"] .brand-header,
+html[data-reading-surface="light"] .motion-control { color: var(--foundry-green) !important; background: var(--culture-white) !important; text-shadow: none; }
+.inquiry-section { padding-top: 30px; scroll-margin-top: 0; }
+.scale-route { display: flex; align-items: center; flex-wrap: wrap; gap: 15px 25px; padding: 24px 0 34px; margin-bottom: 40px; border-bottom: 1px solid var(--hairline); color: var(--culture-green); font-size: 12px; }
+.scale-route a { padding: 12px 0; text-underline-offset: 5px; }
+.scale-route a:hover { text-decoration: underline; }
+.scale-route [aria-current] { color: var(--foundry-green); }
+.inquiry-heading { display: grid; grid-template-columns: 1.5fr 1fr; gap: 7%; align-items: end; }
+.inquiry-heading h2 { max-width: 820px; margin-bottom: 0; }
+.inquiry-heading > p { font-size: 18px; line-height: 1.7; max-width: 440px; margin: 0 0 4px; }
+.condition-context { margin-top: 20px; max-width: 300px; color: var(--culture-green); font-size: 13px; line-height: 1.7; }
+.condition-context span { display: block; margin-top: 6px; font-size: 11px; }
+.cell-study-guide { gap: 0; width: 215px; }
+.cell-study-guide[hidden] { display: none; }
+.cell-guide-label { margin: 0 0 10px; font-size: 9px; letter-spacing: .1em; opacity: .7; }
+.cell-study-guide button { background: transparent; color: inherit; border: 0; border-bottom: 1px solid #f4f1e830; font: inherit; min-height: 44px; display: flex; align-items: center; text-align: left; gap: 10px; padding: 9px 0; cursor: pointer; }
+.cell-study-guide button i { flex-shrink: 0; }
+.cell-study-guide button span { margin-left: auto; }
+.cell-study-guide button:hover { border-color: #f4f1e8a0; }
+.cell-study-guide button:focus-visible { outline: 2px solid var(--culture-white); outline-offset: 4px; }
+.cell-reading { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(440px,100%); height: 100dvh; max-width: 100%; max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain; background: #22311d; color: var(--culture-white); border: 0; border-left: 1px solid #f4f1e850; padding: 0; }
+.cell-reading::backdrop { background: #0d180e50; }
+.cell-reading-inner { padding: 32px 35px 40px; }
+.cell-reading-top { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 45px; }
+.cell-reading .eyebrow { color: #d7dcc0; font-size: 10px; line-height: 1.6; }
+.cell-reading-top button { width: 44px; height: 44px; background: transparent; color: inherit; border: 1px solid #f4f1e850; font-size: 26px; cursor: pointer; }
+.cell-reading-key { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+.cell-reading-key i { width: 8px; height: 8px; border-radius: 50%; }
+.cell-reading h3 { font-size: 40px; line-height: 1.1; letter-spacing: -.04em; font-weight: 400; margin: 25px 0; }
+.cell-reading p { font-size: 16px; line-height: 1.7; }
+.cell-reading-question { border-top: 1px solid #f4f1e830; padding-top: 24px; margin: 30px 0; }
+.cell-reading a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; border-bottom: 1px solid #f4f1e850; }
+.cell-reading .cell-reading-scope { color: #c6cdb6; font-size: 12px; margin-top: 28px; }
+.cell-reading .cell-to-culture { display: flex; margin-top: 35px; font-size: 16px; }
+.cell-reading :focus-visible { outline: 2px solid #d7dcc0; outline-offset: 4px; }
+.specimen-layout { display: grid; grid-template-columns: 1.08fr 1fr; gap: 6%; align-items: center; padding: 35px 0 45px; }
+.specimen-view { margin: 0; min-width: 0; }
+.culture-specimen { display: block; width: 100%; height: auto; color: var(--culture-green); }
+.culture-specimen text { stroke: none; fill: currentColor; font-size: 11px; letter-spacing: .06em; }
+.culture-specimen .specimen-label { font-size: 10px; opacity: .65; }
+.specimen-filaments { opacity: .65; }
+.specimen-overlay { opacity: 0; transition: opacity .45s ease; }
+[data-observation="biomass"] .specimen-amount,
+[data-observation="morphology"] .specimen-form,
+[data-observation="compound"] .specimen-compound { opacity: 1; }
+.specimen-view figcaption { padding: 10px 5% 0; }
+.specimen-view figcaption strong { display: block; font-size: clamp(24px,2.4vw,34px); line-height: 1.2; font-weight: 400; letter-spacing: -.03em; margin: 14px 0; }
+.specimen-view figcaption > span:last-child { font-size: 13px; color: var(--culture-green); }
+.specimen-view .eyebrow { font-size: 10px; }
+.specimen-lens .measurement-branches { display: flex; flex-direction: column; border-left: 0; }
+.specimen-lens .measurement-branch { display: grid; grid-template-columns: 30px 1fr 24px; align-items: start; gap: 14px; padding: 19px 0; border: 0; border-top: 1px solid #22311d30; box-shadow: none; color: var(--culture-green); }
+.specimen-lens .measurement-branch::before { display: none; }
+.specimen-lens .measurement-branch strong { margin: 0 0 7px; font-size: 28px; }
+.specimen-lens .measurement-branch > span > span { font-size: 13px; line-height: 1.5; }
+.specimen-lens .measurement-branch > span { grid-column: auto; grid-row: 1; }
+.specimen-lens .question-number { font-size: 11px; padding-top: 8px; }
+.specimen-lens .measurement-branch > .question-mark { font-size: 23px; line-height: 1.2; }
+.specimen-lens .measurement-branch[aria-pressed="true"] { color: var(--foundry-green); border-top-color: var(--foundry-green); }
+.specimen-lens .measurement-branch[aria-pressed="true"] .question-number { background: var(--foundry-green); color: var(--culture-white); padding: 5px; text-align: center; }
+.specimen-lens .measurement-reading { display: block; padding: 20px 0 0 44px; min-height: 280px; }
+.specimen-lens .measurement-reading p { font-size: 15px; line-height: 1.7; }
+.specimen-lens .measurement-reading .eyebrow { margin-bottom: 10px; font-size: 10px; }
+.specimen-lens .measurement-limit { margin-top: 20px; color: var(--culture-green); }
+.observation-source { margin-top: 20px; font-size: 12px; }
+.observation-source summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; border-top: 1px solid #22311d30; cursor: pointer; }
+.observation-source p { font-size: 13px !important; margin: 12px 0 !important; }
+.observation-source a { display: block; text-decoration: underline; text-underline-offset: 4px; padding: 12px 0; line-height: 1.6; }
+.sample-record { display: grid; grid-template-columns: 1.08fr 1fr; gap: 6%; border-top: 1px solid #22311d60; border-bottom: 1px solid #22311d30; padding: 30px 0; }
+.sample-record h3 { font-weight: 400; font-size: 30px; letter-spacing: -.03em; max-width: 350px; line-height: 1.15; margin: 17px 0; }
+.sample-record .eyebrow { font-size: 10px; }
+.sample-record p { font-size: 13px; line-height: 1.7; max-width: 420px; }
+.sample-record-fields ul { list-style: none; padding: 0; margin: 18px 0; }
+.sample-record-fields li { display: flex; gap: 14px; padding: 10px 0; font-size: 15px; border-bottom: 1px solid #22311d20; }
+.sample-record-fields li span { color: var(--growth-green); }
+.intermediate-record { border: 1px solid #22311d45; padding: 30px; margin: 20px 7%; transform: rotate(-2deg); background: var(--culture-white); }
+.intermediate-record > .eyebrow { font-size: 9px; line-height: 1.6; }
+.intermediate-record h4 { font-size: 34px; font-weight: 400; letter-spacing: -.04em; line-height: 1.1; margin: 25px 0; }
+.intermediate-record dl { margin: 0; }
+.intermediate-record dl > div { display: grid; grid-template-columns: 85px 1fr; gap: 12px; padding: 15px 0; border-top: 1px solid #22311d30; font-size: 12px; line-height: 1.5; }
+.intermediate-record dd { margin: 0; color: var(--culture-green); }
+.intermediate-record > p:last-child { font-size: 10px; margin-top: 20px; line-height: 1.5; }
+.application-trace .application-question { font-size: clamp(21px,2vw,27px); line-height: 1.3; letter-spacing: -.02em; margin: 0 0 25px; }
+.application-question .eyebrow { display: block; font-size: 10px; letter-spacing: .06em; margin-bottom: 12px; }
+.application-evidence { margin-top: 16px; border-top: 1px solid #22311d30; font-size: 13px; }
+.application-evidence summary { padding: 15px 0; cursor: pointer; }
+.application-evidence p { font-size: 14px !important; line-height: 1.7 !important; }
+.application-evidence a { min-height: 44px; display: inline-flex; align-items: center; text-decoration: underline; text-underline-offset: 4px; }
+.milestone-evidence { margin-top: 20px; font-size: 13px; max-width: 580px; }
+.milestone-evidence summary { border-top: 1px solid #22311d40; padding: 15px 0; display: flex; justify-content: space-between; cursor: pointer; }
+.milestone-evidence dl { margin: 0; }
+.milestone-evidence dl > div { display: grid; grid-template-columns: 60px 1fr; gap: 18px; padding: 10px 0; border-top: 1px solid #22311d25; line-height: 1.6; }
+.milestone-evidence dd { margin: 0; }
+.milestone-evidence a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; }
+.progress-archive li { scroll-margin-top: 110px; }
+html[data-reading-surface="light"] .field-layer { visibility: hidden; }
+@media(max-width:1000px) {
+  .inquiry-heading { grid-template-columns: 1fr; gap: 28px; }
+  .inquiry-heading > p { max-width: 640px; }
+  .specimen-layout { gap: 3%; grid-template-columns: 1fr 1fr; }
+  .specimen-lens .measurement-reading { padding-left: 0; }
+}
+@media(max-width:600px) {
+  .inquiry-section { padding-top: 0; }
+  .scale-route { gap: 8px 14px; margin-bottom: 25px; font-size: 10px; }
+  .inquiry-heading h2 { font-size: 39px; }
+  .inquiry-heading > p { font-size: 16px; }
+  .cell-study-guide { width: 200px; gap: 0; }
+  .cell-guide-label { display: none; }
+  .cell-study-guide button { min-height: 44px; font-size: 11px; }
+  html:not([data-engine="live"]) .cell-study-guide { top: auto; bottom: 180px; }
+  .cell-reading { inset: auto 0 0; width: 100%; height: auto; max-height: 75dvh; border-left: 0; border-top: 1px solid #f4f1e850; }
+  .cell-reading-inner { padding: 18px 24px 30px; }
+  .cell-reading-top { margin-bottom: 15px; }
+  .cell-reading h3 { font-size: 31px; margin: 18px 0; }
+  .cell-reading p { font-size: 14px; }
+  .cell-reading-question { padding-top: 18px; margin: 20px 0 10px; }
+  .cell-reading .cell-to-culture { margin-top: 20px; }
+  .specimen-layout { grid-template-columns: 1fr; padding-top: 0; gap: 30px; }
+  .specimen-view { max-width: 480px; width: 100%; margin: auto; }
+  .specimen-view figcaption { padding: 0; }
+  .specimen-view figcaption strong { font-size: 28px; }
+  .specimen-lens .measurement-branches { grid-template-columns: none; }
+  .specimen-lens .measurement-branch { padding: 17px 0; grid-template-columns: 27px 1fr 20px; }
+  .specimen-lens .measurement-branch strong { font-size: 25px; }
+  .specimen-lens .measurement-reading { min-height: 0; padding: 20px 0 0; }
+  .sample-record { grid-template-columns: 1fr; gap: 25px; }
+  .sample-record h3 { font-size: 28px; }
+  .sample-record-fields ul { margin-bottom: 18px; }
+  .intermediate-record { padding: 22px; margin: 15px 4%; transform: none; }
+  .intermediate-record h4 { font-size: 30px; }
+  .intermediate-record dl > div { grid-template-columns: 70px 1fr; }
+  .application-trace .application-question { font-size: 23px; }
+}
+@media(prefers-reduced-motion:reduce) { .specimen-overlay { transition: none; } }
+[data-motion="still"] .specimen-overlay { transition: none; }

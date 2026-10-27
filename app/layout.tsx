@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./content.css";
 import "./visual-stories.css";
+import "./research-journey.css";
 import { site, description } from "@/lib/site";
 import TrackingConsent from "@/components/TrackingConsent";
 import { reviewMode } from "@/content/server";

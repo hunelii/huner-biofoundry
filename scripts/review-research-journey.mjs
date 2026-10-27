@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {mkdir,writeFile} from 'node:fs/promises';
+import path from 'node:path';
+const require=createRequire(import.meta.url);
+const {chromium}=require(process.env.HUNER_PLAYWRIGHT_PATH||'/Users/huneli/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const output=path.resolve('../output/research-journey-review');await mkdir(output,{recursive:true});
+const browser=await chromium.launch({headless:true,executablePath:process.env.HUNER_TEST_BROWSER||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const origin=process.env.HUNER_REVIEW_URL||'http://127.0.0.1:3000',checks=[],errors=[];
+const shot=async(p,selector,name)=>{const e=p.locator(selector).first();await e.scrollIntoViewIfNeeded();await p.waitForTimeout(200);await e.screenshot({path:path.join(output,name+'.png'),style:'.brand-header,.motion-control,.skip-link,.journey-progress{visibility:hidden!important}'});};
+try{
+ const p=await browser.newPage({viewport:{width:1440,height:1000}});p.on('pageerror',e=>errors.push(e.message));
+ await p.goto(origin+'/',{waitUntil:'networkidle'});
+ await p.waitForFunction(()=>document.querySelector('.field-layer canvas')?.dataset.status==='spatial');
+ const order=await p.locator('#material,#inquiry,#process,#applications,#research').evaluateAll(es=>es.map(e=>e.id));assert.deepEqual(order,['material','inquiry','process','applications','research']);checks.push('Cell → inquiry → process → applications reading order');
+ await p.evaluate(()=>{const e=document.getElementById('material');scrollTo({top:e.offsetTop+(e.offsetHeight-innerHeight)*.72,behavior:'instant'});});
+ await p.waitForFunction(()=>Number(document.getElementById('material').dataset.progress)>.7&&Number(document.querySelector('.field-layer canvas')?.dataset.cellTriangles)>0);
+ await p.getByRole('button',{name:'Pause motion',exact:true}).click();
+ await p.screenshot({path:path.join(output,'cell-desktop.png')});checks.push('Original 3D cell renders');
+ await p.getByRole('button',{name:'Nucleus',exact:false}).click();
+ assert.equal(await p.getByRole('dialog').isVisible(),true);assert.match(await p.getByRole('dialog').innerText(),/Organization within/);
+ await p.screenshot({path:path.join(output,'cell-explanation-desktop.png')});await p.keyboard.press('Escape');
+ assert.equal(await p.getByRole('dialog').isVisible(),false);assert.match(await p.evaluate(()=>document.activeElement.textContent),/Nucleus/);checks.push('Cell explanation opens, Escape closes, focus returns');
+ await p.getByRole('button',{name:'Cell wall + membrane',exact:false}).click();await p.getByRole('link',{name:'Continue from cell to culture'}).click();
+ await p.waitForFunction(()=>document.documentElement.dataset.readingSurface==='light');assert.equal(await p.getByRole('dialog').isVisible(),false);checks.push('Cell explanation continues to culture with readable navigation');
+ assert.equal(await p.evaluate(()=>document.activeElement.id),'inquiry');
+ await p.evaluate(()=>{const e=document.getElementById('inquiry');scrollTo({top:scrollY+e.getBoundingClientRect().top+200,behavior:'instant'});});
+ await p.waitForFunction(()=>document.querySelector('.field-layer canvas').style.opacity==='0');
+ await p.evaluate(()=>{const e=document.getElementById('material');scrollTo({top:e.offsetTop+(e.offsetHeight-innerHeight)*.72,behavior:'instant'});});
+ await p.waitForFunction(()=>document.documentElement.dataset.readingSurface==='none'&&Number(document.querySelector('.field-layer canvas').style.opacity)>.9);
+ assert.equal(await p.locator('.field-layer').evaluate(e=>getComputedStyle(e).visibility),'visible');checks.push('Reading surface stops hidden rendering; original cell returns on reverse scroll');
+ const lens=p.locator('#inquiry .measurement-lens');await lens.getByRole('button',{name:/Morphology/}).click();
+ assert.equal(await lens.locator('.culture-specimen').getAttribute('data-observation'),'morphology');
+ await lens.getByRole('button',{name:/Morphology/}).focus();await p.keyboard.press('ArrowDown');assert.equal(await lens.getAttribute('data-step'),'2');
+ assert.match(await lens.locator('.sample-record-fields').innerText(),/Reference standard/);assert.match(await lens.locator('.measurement-reading').innerText(),/More biomass does not/);
+ await lens.locator('.observation-source summary').click();assert.equal(await lens.locator('.observation-source a').count(),2);checks.push('Observation, record and source update together; arrow navigation works');
+ await shot(p,'#inquiry','inquiry-desktop');
+ await p.locator('#process').getByRole('tab',{name:/04 Specify/}).click();await shot(p,'#process','process-record-desktop');checks.push('Process shows an explicit intermediate specification');
+ await p.locator('#food .application-evidence summary').click();await shot(p,'#food','application-desktop');
+ await p.locator('#milestones').scrollIntoViewIfNeeded();await p.waitForTimeout(1200);
+ const milestone=p.locator('#milestone-research .milestone-evidence');await milestone.locator('summary').click();assert.match(await milestone.innerText(),/Public-source confirmation is pending/);await shot(p,'.milestone-list','milestone-evidence-desktop');checks.push('Milestone exposes status and provenance without inventing dates');
+ for(const [name,width,height]of[['phone',390,844],['tablet',820,1180],['narrow',320,740]]){
+  const context=await browser.newContext({viewport:{width,height},hasTouch:true,reducedMotion:'reduce'});const m=await context.newPage();m.on('pageerror',e=>errors.push(e.message));await m.goto(origin+'/',{waitUntil:'networkidle'});
+  assert.equal(await m.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
+  const ml=m.locator('#inquiry .measurement-lens');await ml.getByRole('button',{name:/Target compound/}).click();assert.equal(await ml.getAttribute('data-step'),'2');
+  assert.equal(await ml.locator('.question-mark').first().evaluate(e=>getComputedStyle(e).gridRow),'1');
+  await shot(m,'#inquiry',`inquiry-${name}`);
+  await m.getByRole('button',{name:'Vacuole',exact:false}).click();assert.equal(await m.getByRole('dialog').isVisible(),true);assert.match(await m.getByRole('dialog').innerText(),/internal compartment/);await m.screenshot({path:path.join(output,`cell-explanation-${name}.png`)});await m.keyboard.press('Escape');
+  await m.locator('#inquiry').scrollIntoViewIfNeeded();assert.equal(await ml.getAttribute('data-motion'),'still');checks.push(`${name}: no overflow, touch controls, cell dialog and reduced motion`);await context.close();
+ }
+ const nojs=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});const plain=await nojs.newPage();await plain.goto(origin+'/');await plain.locator('#inquiry .full-sequence summary').click();assert.match(await plain.locator('#inquiry .full-sequence').innerText(),/More biomass does not/);checks.push('No-JavaScript complete measurement explanation');await nojs.close();
+ assert.deepEqual(errors,[]);console.log(JSON.stringify({checks,errors,output},null,2));
+}finally{await writeFile(path.join(output,'results.json'),JSON.stringify({checks,errors},null,2));await browser.close();}

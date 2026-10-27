@@ -50,7 +50,7 @@ export default function MilestoneJourney({ paused }: { paused: boolean }) {
       <p className="sr-only" role="status">{ready ? `${milestones[active].title}. ${milestones[active].result}.` : ""}</p>
       <ol className="milestone-list">{milestones.map((m, i) => <li id={`milestone-${m.id}`} key={m.id} data-active={i === active} hidden={ready && i !== active}>
         <div className="milestone-detail-heading"><span className="milestone-record" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span><p className="milestone-category">{m.category}</p></div>
-        <h3>{m.title}</h3><p className="milestone-result">{m.result}</p><p className="milestone-description">{m.copy}<br /><small>Huner-supplied record · event date unconfirmed.</small><br /><a className="text-link" href="/progress/">Read the evidence & status ↗</a></p>
+        <h3>{m.title}</h3><p className="milestone-result">{m.result}</p><p className="milestone-description">{m.copy}</p><details className="milestone-evidence"><summary>About this record <span aria-hidden="true">＋</span></summary><dl><div><dt>Status</dt><dd>{m.result}</dd></div><div><dt>Source</dt><dd>{m.id === "changenow" || m.id === "agriculture" ? "Selection notice supplied by Huner. This records selection, not a win at the final event." : "Huner-supplied materials. Public-source confirmation is pending."}</dd></div><div><dt>Date</dt><dd>Event date awaiting confirmation</dd></div></dl><a href={`/progress/#record-${m.id}`}>Open the complete record ↗</a></details>
       </li>)}</ol>
       <div className="milestone-controls" hidden={!ready}>
         <button className="overview-control" aria-pressed={overview} onClick={() => setOverview(!overview)}>{overview ? "Take a closer look ↗" : "See the whole journey ↖"}</button>

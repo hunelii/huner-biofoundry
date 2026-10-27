@@ -1,5 +1,6 @@
 "use client";
 import { useId, useRef, useState } from "react";
+import CultureSpecimen from "./visuals/CultureSpecimen";
 import ScientificDrawing, { type DrawingKind } from "./visuals/ScientificDrawing";
 import { useVisualProgress } from "./visuals/VisualMotion";
 const stages = [
@@ -23,7 +24,7 @@ export default function ProcessExplorer() {
       <div className="process-tabs" role="tablist" aria-label="Explore the biological value chain">{stages.map((item, index) => <button key={item.label} ref={element => { tabs.current[index] = element; }} role="tab" id={`${id}-tab-${index}`} aria-selected={index === active} aria-controls={`${id}-panel`} tabIndex={index === active ? 0 : -1} onFocus={() => setManual(true)} onClick={() => select(index)} onKeyDown={event => { const next = event.key === "ArrowRight" ? (active + 1) % stages.length : event.key === "ArrowLeft" ? (active + stages.length - 1) % stages.length : event.key === "Home" ? 0 : event.key === "End" ? stages.length - 1 : null; if (next !== null) { event.preventDefault(); select(next); } }}><span>0{index + 1}</span>{item.label}<small>{item.name}</small></button>)}</div>
     </div>
     <div className="process-detail" role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${active}`} tabIndex={0} onFocus={() => setManual(true)}>
-      <figure className="process-specimen"><ScientificDrawing kind={drawings[active]} /><figcaption><span>0{active + 1}</span>{stage.name}<small>Conceptual process schematic</small></figcaption></figure>
+      <figure className="process-specimen">{active === 2 ? <CultureSpecimen observation="morphology"/> : active === 3 ? <div className="intermediate-record"><p className="eyebrow">BIOLOGICAL INTERMEDIATE / SPECIFICATION</p><h4>What crosses<br />the boundary?</h4><dl><div><dt>Identity</dt><dd>Organism, strain and culture history</dd></div><div><dt>Properties</dt><dd>Measurements relevant to the next process</dd></div><div><dt>Handling</dt><dd>Recovery, stabilization and storage needs</dd></div><div><dt>Acceptance</dt><dd>Application-specific evaluation criteria</dd></div></dl><p>Illustrative record structure · no sample values</p></div> : <ScientificDrawing kind={drawings[active]} />}<figcaption><span>0{active + 1}</span>{stage.name}<small>Conceptual process schematic</small></figcaption></figure>
       <div className="process-explanation"><p className="eyebrow">{stage.group}</p><h3>{stage.title}</h3><p>{stage.copy}</p><p className="process-measure">{stage.measure}</p></div>
     </div>
     <p className="feedback-line"><span aria-hidden="true">←</span> Requirements travel back upstream. A different application may need a different cultivation target.</p>
