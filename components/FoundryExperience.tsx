@@ -1,5 +1,7 @@
 "use client";
 import { useState, type ComponentType, type ReactNode } from "react";
+import ApplicationTrace from "./content/visuals/ApplicationTrace";
+import { VisualMotionContext } from "./content/visuals/VisualMotion";
 import SiteNavigation from "./content/SiteNavigation";
 import dynamic from "next/dynamic";
 import MilestoneJourney from "./MilestoneJourney";
@@ -11,7 +13,7 @@ const LivingFoundry = dynamic(
 export default function FoundryExperience({ SpatialLayer, content }: { SpatialLayer?: ComponentType<{ paused: boolean }>; content?: ReactNode } = {}) {
   const [paused, setPaused] = useState(false);
   return (
-    <>
+    <VisualMotionContext value={paused}>
       <a className="skip-link" href="#arrival">
         Skip to content
       </a>
@@ -188,6 +190,7 @@ export default function FoundryExperience({ SpatialLayer, content }: { SpatialLa
               <h2 id={`${application.id}-title`}>{application.title}</h2>
               <p className="application-line">{application.line}</p>
               <p>{application.copy}</p>
+              <ApplicationTrace direction={application.id as "food" | "fragrance" | "raw-materials"} />
               <a className="text-link" href={`/applications/#${application.id}`}>Explore this direction ↗</a>
             </div>
             <p className="behavior-note">{application.behavior}<br /><span>Illustrative living study</span></p>
@@ -216,6 +219,6 @@ export default function FoundryExperience({ SpatialLayer, content }: { SpatialLa
       >
         {paused ? "Resume motion" : "Pause motion"}
       </button>
-    </>
+    </VisualMotionContext>
   );
 }

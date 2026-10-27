@@ -1,4 +1,5 @@
 "use client";
+import ScientificDrawing, { type DrawingKind } from "./visuals/ScientificDrawing";
 import { useId, useState } from "react";
 const variables = [
   { title: "Oxygen & mixing", question: "What reaches the organism?", copy: "Oxygen supply, transfer into the medium and availability within a fungal aggregate are different questions. Increasing a mixing setting does not establish that every part of a culture experiences the same environment.", measurement: "A defined oxygen measurement, equipment conditions and morphology observations.", limit: "Relevant oxygen requirements and acceptable mechanical stress depend on the biological system." },
@@ -8,5 +9,5 @@ const variables = [
 ];
 export default function VariablesExplorer() {
   const [active, setActive] = useState(0), id = useId(), variable = variables[active];
-  return <div className="variables-explorer"><label htmlFor={id}>Explore a cultivation variable</label><select id={id} value={active} onChange={event => setActive(Number(event.target.value))}>{variables.map((item,i) => <option key={item.title} value={i}>{item.title}</option>)}</select><div aria-live="polite"><h3>{variable.question}</h3><p>{variable.copy}</p><p><strong>What to examine:</strong> {variable.measurement}</p><p className="scope-caption">{variable.limit}</p></div><p className="scope-caption">Conceptual explanation. No simulated curve or experimentally calibrated response is shown.</p></div>;
+  return <div className="variables-explorer"><label htmlFor={id}>Explore a cultivation variable</label><select id={id} value={active} onChange={event => setActive(Number(event.target.value))}>{variables.map((item,i) => <option key={item.title} value={i}>{item.title}</option>)}</select><div className="variable-visual"><ScientificDrawing kind={(["culture", "specify", "culture", "organism"] as DrawingKind[])[active]}/></div><div aria-live="polite"><h3>{variable.question}</h3><p>{variable.copy}</p><p><strong>What to examine:</strong> {variable.measurement}</p><p className="scope-caption">{variable.limit}</p></div><p className="scope-caption">Conceptual explanation. No simulated curve or experimentally calibrated response is shown.</p></div>;
 }
