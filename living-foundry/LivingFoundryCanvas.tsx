@@ -35,30 +35,82 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       const el = document.getElementById("condition-status");
       if (el) el.textContent = text;
     };
+    let elements: {
+      chapters: { id: string; el: HTMLElement | null }[];
+      material: HTMLElement | null;
+      cultivation: HTMLElement | null;
+      milestones: HTMLElement | null;
+    } | null = null;
+    let metrics = {
+      chapterTops: [] as { id: string; top: number }[],
+      materialTop: 0,
+      materialHeight: 0,
+      cultivationTop: 0,
+      cultivationHeight: 0,
+      milestonesTop: 0,
+      maxScroll: 1,
+    };
+    const getElements = () => {
+      if (!elements) {
+        elements = {
+          chapters: chapters.map(id => ({ id, el: document.getElementById(id) })),
+          material: document.getElementById("material"),
+          cultivation: document.getElementById("cultivation"),
+          milestones: document.getElementById("milestones"),
+        };
+      }
+      return elements;
+    };
+    const measure = () => {
+      const els = getElements();
+      metrics = {
+        chapterTops: els.chapters.map(({ id, el }) => ({ id, top: el ? el.offsetTop : 0 })),
+        materialTop: els.material ? els.material.offsetTop : 0,
+        materialHeight: els.material ? els.material.offsetHeight : 0,
+        cultivationTop: els.cultivation ? els.cultivation.offsetTop : 0,
+        cultivationHeight: els.cultivation ? els.cultivation.offsetHeight : 0,
+        milestonesTop: els.milestones ? els.milestones.offsetTop : 0,
+        maxScroll: Math.max(1, document.documentElement.scrollHeight - innerHeight),
+      };
+    };
     const stage = () => {
+      if (!metrics.materialTop) measure();
       const y = scrollY + innerHeight * 0.45;
-      const chapter = chapters.filter(id => y >= document.getElementById(id)!.offsetTop).length - 1;
-      document.documentElement.dataset.chapter = chapters[Math.max(0, chapter)];
-      document.documentElement.style.setProperty("--journey", String(scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)));
+      let chapterIdx = 0;
+      for (let i = 0; i < metrics.chapterTops.length; i++) {
+        if (y >= metrics.chapterTops[i].top) chapterIdx = i;
+      }
+      const chapterName = chapters[chapterIdx] ?? "arrival";
+      if (document.documentElement.dataset.chapter !== chapterName) {
+        document.documentElement.dataset.chapter = chapterName;
+      }
+      const journeyVal = (scrollY / metrics.maxScroll).toFixed(4);
+      document.documentElement.style.setProperty("--journey", journeyVal);
       const e = engine.current;
       if (!e || e.failed) return;
-      e.stage = chapter;
-      const material = document.getElementById("material")!;
-      const windowState = materialWindow(scrollY, material.offsetTop, material.offsetHeight, innerHeight);
+      e.stage = chapterIdx;
+      const windowState = materialWindow(scrollY, metrics.materialTop, metrics.materialHeight, innerHeight);
       e.boundary = e.stage === 3 || e.stage === 4 ? 1 : 0;
-      const restoredMaterial = e.setMaterialTarget(windowState.progress, scrollY >= material.offsetTop + material.offsetHeight);
-      const cultivation = document.getElementById("cultivation")!;
-      e.tissue = scrollY < material.offsetTop + material.offsetHeight ? clamp((scrollY - cultivation.offsetTop + innerHeight * .2) / Math.max(1, cultivation.offsetHeight - innerHeight * .5)) : 0;
-      cultivation.style.setProperty("--tissue", String(e.tissue));
-      cultivation.dataset.phase = e.tissue < .33 ? "connect" : e.tissue < .7 ? "concentrate" : "become";
-      if (scrollY + innerHeight * 3 > material.offsetTop) e.loadMaterial();
-      const milestones = document.getElementById("milestones")!;
+      const restoredMaterial = e.setMaterialTarget(windowState.progress, scrollY >= metrics.materialTop + metrics.materialHeight);
+      const cultivation = getElements().cultivation;
+      e.tissue = scrollY < metrics.materialTop + metrics.materialHeight
+        ? clamp((scrollY - metrics.cultivationTop + innerHeight * .2) / Math.max(1, metrics.cultivationHeight - innerHeight * .5))
+        : 0;
+      if (cultivation) {
+        cultivation.style.setProperty("--tissue", String(e.tissue));
+        const phase = e.tissue < .33 ? "connect" : e.tissue < .7 ? "concentrate" : "become";
+        if (cultivation.dataset.phase !== phase) cultivation.dataset.phase = phase;
+      }
+      if (scrollY + innerHeight * 3 > metrics.materialTop) e.loadMaterial();
       const covered = readingSurfaces.some(surface => { const box = surface.getBoundingClientRect(); return box.top <= 0 && box.bottom >= innerHeight; });
-      e.visible = scrollY < milestones.offsetTop && !covered;
-      canvas.current!.style.opacity = !e.visible ? "0" : String(windowState.opacity);
-      canvas.current!.style.transform = `translateY(${windowState.offset}px)`;
-      canvas.current!.dataset.chapter = chapters[e.stage] ?? "arrival";
-      if (e.visible && (e.paused || e.materialTarget === 0 || restoredMaterial)) e.render();
+      e.visible = scrollY < metrics.milestonesTop && !covered;
+      if (canvas.current) {
+        const opacityStr = !e.visible ? "0" : String(windowState.opacity);
+        if (canvas.current.style.opacity !== opacityStr) canvas.current.style.opacity = opacityStr;
+        canvas.current.style.transform = `translate3d(0, ${windowState.offset}px, 0)`;
+        if (canvas.current.dataset.chapter !== chapterName) canvas.current.dataset.chapter = chapterName;
+      }
+      if (e.visible && (e.paused || restoredMaterial)) e.render();
     };
     const onScroll = () => {
       if (!scrollFrame) scrollFrame = requestAnimationFrame(() => { scrollFrame = 0; stage(); });
@@ -173,9 +225,10 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
     const resize = () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
+        measure();
         engine.current?.resize();
         stage();
-      }, 150);
+      }, 100);
     };
     const lost = (e: Event) => {
       e.preventDefault();
@@ -194,7 +247,7 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
     window.addEventListener("huner:influence", addCondition);
     stage();
     void start();
-    void document.fonts.ready.then(() => { if (!disposed) stage(); });
+    void document.fonts.ready.then(() => { if (!disposed) { measure(); stage(); } });
     const timer = lab
       ? setInterval(() => {
           const e = engine.current;

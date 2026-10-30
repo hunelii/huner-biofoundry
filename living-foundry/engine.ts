@@ -372,7 +372,7 @@ export class FoundryEngine {
       return;
     }
     const cellTransition = this.materialTarget > 0 || this.materialProgress > 0;
-    const fps = cellTransition ? (this.cellBudget.degraded ? 24 : innerWidth <= 600 ? 30 : 60) : this.quality.fps;
+    const fps = cellTransition ? (this.cellBudget.degraded ? 30 : 60) : (this.budget.degraded ? 30 : this.quality.fps);
     const interval = 1000 / fps;
     if (now - this.last < interval) return;
     const frameGap = now - this.last;
@@ -407,7 +407,7 @@ export class FoundryEngine {
       this.stage < 0.5
         ? 1
         : this.steps < targetSteps
-          ? this.quality.steps * 3
+          ? Math.min(4, this.quality.steps * 2)
           : this.quality.steps;
     for (let i = 0; i < count; i++) this.stepBiology();
     this.render();
