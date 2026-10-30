@@ -7,13 +7,16 @@
 .reading-nav a { display: inline-flex; align-items: center; min-height: 44px; }
 .reading-nav a:hover, .reading-site a:hover { text-decoration: underline; text-underline-offset: 5px; }
 .site-menu { position: relative; font-size: 13px; }
-.site-menu summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 28px; min-height: 44px; }
+.site-menu summary { list-style: none; cursor: pointer; display: flex; align-items: center; min-height: 44px; }
 .site-menu summary::-webkit-details-marker { display: none; }
-.site-menu summary span { font-size: 22px; }
-.site-menu[open] summary span { transform: rotate(45deg); }
+.site-menu[open] summary { text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 2px; }
+.site-menu summary:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
 .site-menu nav { position: absolute; right: 0; top: 54px; width: 260px; max-height: calc(100svh - 120px); overflow-y: auto; overscroll-behavior: contain; padding: 20px 24px; background: var(--culture-white); color: var(--foundry-green); text-shadow: none; border: 1px solid #22311d55; box-shadow: 0 10px 35px #22311d12; z-index: 20; }
 .site-menu nav a { display: block; padding: 14px 0; border-bottom: 1px solid #22311d20; }
 .site-menu nav a:last-child { border: 0; }
+.site-menu nav .menu-primary, .site-menu nav .menu-secondary { display: none; }
+@media(max-width:1100px) { .site-menu nav .menu-secondary { display: block; } }
+@media(max-width:600px) { .site-menu nav .menu-primary { display: block; } }
 .reading-main { padding: 160px var(--page-x) 110px; max-width: 1600px; margin: auto; }
 .breadcrumbs { font-size: 12px; line-height: 1.8; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px; }
 .reading-hero { padding: 80px 0 90px; border-bottom: 1px solid var(--hairline); }

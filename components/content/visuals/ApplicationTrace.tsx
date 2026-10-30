@@ -1,5 +1,4 @@
 import { ScienceIcon } from "./ScientificDrawing";
-import { ScrollDrawing } from "./VisualMotion";
 
 const directions = {
   food: { target: "Food use", focus: "Composition", test: "Safety & function", question: "What would make this suitable as an ingredient?", evidence: "Composition, identity and appropriate safety and functional assessments must be considered together." },
@@ -8,8 +7,8 @@ const directions = {
 };
 export default function ApplicationTrace({ direction }: { direction: keyof typeof directions }) {
   const item = directions[direction];
-  return <ScrollDrawing className="application-trace"><figure>
-    <p className="application-question"><span className="eyebrow">THE QUESTION DOWNSTREAM</span>{item.question}</p>
+  return <div className="application-trace"><figure>
+    <p className="application-question">{item.question}</p>
     <div className="trace-flow">
       <div><ScienceIcon kind="organism"/><strong>{item.focus}</strong><span>Biological intermediate</span></div>
       <span className="trace-arrow" aria-hidden="true">→</span>
@@ -18,5 +17,5 @@ export default function ApplicationTrace({ direction }: { direction: keyof typeo
       <div><ScienceIcon kind="transform"/><strong>{item.target}</strong><span>Potential direction</span></div>
     </div>
     <figcaption>Application requirements guide what we need to measure upstream.</figcaption>
-  </figure><details className="application-evidence"><summary>What would we need to establish?</summary><p>{item.evidence}</p><a href="/approach/#measurement">Explore the measurement approach ↗</a></details></ScrollDrawing>;
+  </figure><details className="application-evidence"><summary>What would we need to establish?</summary><p>{item.evidence}</p><a href="/approach/#measurement">Explore the measurement approach ↗</a></details></div>;
 }

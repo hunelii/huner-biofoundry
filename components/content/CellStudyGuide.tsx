@@ -26,8 +26,7 @@ export default function CellStudyGuide({ continueHref = "#inquiry" }: { continue
   },[]);
   const close = () => { dialog.current?.close(); returnFocus.current?.focus({preventScroll:true}); };
   return <>
-    <div className="cell-legend cell-study-guide" aria-label="Explore cell structures" hidden={!available}>
-      <p className="cell-guide-label">SELECT A STRUCTURE</p>
+    <div className="cell-legend cell-study-guide" role="group" aria-label="Explore cell structures" hidden={!available}>
       {structures.map((structure,i)=><button key={structure.key} type="button" aria-haspopup="dialog" aria-controls={id} onClick={event=>{returnFocus.current=event.currentTarget;setSelected(i);dialog.current?.showModal();}}><i className={`${structure.key}-key`} aria-hidden="true"/>{structure.name}<span aria-hidden="true">＋</span></button>)}
     </div>
     <dialog ref={dialog} id={id} className="cell-reading" aria-labelledby={`${id}-title`} onCancel={event=>{event.preventDefault();close();}} onClick={event=>{if(event.target===dialog.current)close();}}>

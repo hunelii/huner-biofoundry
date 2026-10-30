@@ -136,12 +136,18 @@ void main(){
  opacity*=mix(1.,.30+.70*contour,conditionsView*(1.-rightDissolve));
  color=mix(color,mix(cultureGreen,cream,.24+rightDissolve*.3),conditionsView*.62);
  opacity*=mix(1.,textTone*pow(1.-rightDissolve,1.35),conditionsView);
- // A soft spatial envelope reserves reading space without rectangular text masks.
- if(stage>=7.) {
-   vec2 center=vec2(.76,verticalOffset>.01?.74:.64);
-   float distance=length((vUv-center)*vec2(1.,1.25));
-   opacity*=1.-smoothstep(.18,.37,distance);
- }
+ // Keep the reflecting wall in the simulation, dissolve its visible edge before it
+ // reaches that wall. The envelope persists through the camera's field snapshot.
+ float wallPhase=max(boundary,smoothstep(2.25,2.8,stage)*(1.-smoothstep(5.15,6.,stage)));
+ float wallWidth=.095+.018*sin(fieldUv.y*19.)+.012*sin(fieldUv.y*43.);
+ opacity*=mix(1.,smoothstep(.006,wallWidth,.735-fieldUv.x),wallPhase);
+ // Sampling outside the field must not expose clamped rows or columns of pixels.
+ vec2 fieldEdge=smoothstep(vec2(0.),vec2(.045),fieldUv)*smoothstep(vec2(0.),vec2(.045),1.-fieldUv);
+ opacity*=fieldEdge.x*fieldEdge.y;
+ // Enter application compositions continuously, including on reverse scroll.
+ vec2 center=vec2(.76,verticalOffset>.01?.74:.64);
+ float distance=length((vUv-center)*vec2(1.,1.25));
+ opacity*=mix(1.,1.-smoothstep(.18,.37,distance),smoothstep(6.,7.,stage));
  if(debugView>0.5){float e=texture2D(environmentField,fieldUv).g;gl_FragColor=vec4(vec3(55.,79.,47.)/255.,e*.9);return;}
  if(progress>0. && materialReady>.5){
    vec2 imageUv=(vUv-.5)*vec2(min(1.,aspect/photoAspect),min(1.,photoAspect/aspect))+.5;

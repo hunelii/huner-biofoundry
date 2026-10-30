@@ -36,6 +36,8 @@ export class FoundryEngine {
   viewScale = 1;
   composition = fieldView(0, innerWidth <= 600);
   boundary = 0;
+  private fieldHasBoundary = false;
+  private snapshotHasBoundary = false;
   regime = phenotype(0);
   materialProgress = 0;
   materialTarget = 0;
@@ -175,6 +177,7 @@ export class FoundryEngine {
     return previous !== this.materialProgress;
   }
   captureMaterial() {
+    this.snapshotHasBoundary = this.fieldHasBoundary;
     this.materialSnapshot = new THREE.WebGLRenderTarget(
       this.width,
       this.height,
@@ -258,6 +261,8 @@ export class FoundryEngine {
   reset = () => {
     this.materialSnapshot?.dispose();
     this.materialSnapshot = null;
+    this.fieldHasBoundary = false;
+    this.snapshotHasBoundary = false;
     const texture = new THREE.DataTexture(
       seedField(this.width, this.height, this.seed),
       this.width,
@@ -290,6 +295,9 @@ export class FoundryEngine {
     this.stimulusUntil = performance.now() + 700;
   }
   stepBiology() {
+    // A removed wall leaves a straight edge in the biological history. Keep that
+    // edge's presentation envelope attached to the field, including saved views.
+    if (this.boundary > .5) this.fieldHasBoundary = true;
     this.bioMaterial.uniforms.previous.value = this.bio[0].texture;
     this.bioMaterial.uniforms.environmentField.value = this.env[0].texture;
     this.bioMaterial.uniforms.feed.value = this.regime.feed + this.settings.feed - 0.0367;
@@ -336,7 +344,7 @@ export class FoundryEngine {
       this.materialElement.style.setProperty("--heading-opacity", String(journey.heading));
       this.materialElement.dataset.progress = this.materialProgress.toFixed(3);
     }
-    this.displayMaterial.uniforms.boundary.value = this.boundary;
+    this.displayMaterial.uniforms.boundary.value = this.boundary || Number(source ? this.snapshotHasBoundary : this.fieldHasBoundary);
     this.displayMaterial.uniforms.debugView.value = this.settings.view;
     if (this.cell && cellView) {
       const focus = this.displayMaterial.uniforms.materialFocus.value as THREE.Vector2;

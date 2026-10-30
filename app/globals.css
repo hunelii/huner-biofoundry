@@ -156,6 +156,9 @@ main {
 }
 .eyebrow {
   margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .065em;
 }
 .narrative-copy {
   margin-top: 24vh;
@@ -241,17 +244,14 @@ footer {
 }
 .still-organism {
   position: absolute;
-  left: 6.24vw;
-  top: calc(47% - 41.04vw);
-  width: 108vw;
-  height: 72vw;
-  background: url(/living-membrane.webp) center/contain no-repeat;
-  mix-blend-mode: multiply;
-  filter: brightness(1.1);
+  left: 64%;
+  top: 16%;
+  width: 24%;
+  height: auto;
   opacity: .84;
   pointer-events: none;
 }
-html[data-engine="live"][data-membrane-ready="true"] .still-organism {
+html[data-engine="live"] .still-organism {
   display: none;
 }
 .lab-panel {
@@ -329,8 +329,8 @@ html[data-engine="live"][data-membrane-ready="true"] .still-organism {
     max-width: 340px;
   }
   .still-organism {
-    left: 6.24vw;
-    top: calc(47% - 41.04vw);
+    left: 64%;
+    top: 16%;
   }
 }
 @media (max-width: 600px) {
@@ -423,10 +423,10 @@ html[data-engine="live"][data-membrane-ready="true"] .still-organism {
     display: inline;
   }
   .still-organism {
-    left: -52.8vw;
-    top: calc(24% - 62.7vw);
-    width: 165vw;
-    height: 110vw;
+    left: 52%;
+    top: 10%;
+    width: 43%;
+    height: auto;
   }
   footer {
     flex-direction: column;
@@ -463,12 +463,9 @@ html[data-engine="live"][data-membrane-ready="true"] .still-organism {
 .narrative-copy > p {
   color: var(--culture-green);
 }
-.eyebrow,
-.side-note,
-.boundary-caption,
-.scroll-cue {
-  color: var(--growth-green);
-}
+.eyebrow { color: var(--foundry-green); }
+.scroll-cue { color: var(--culture-green); }
+.narrative > .eyebrow, .cultivation-frame > .eyebrow { font-size: 14px; }
 .field-layer {
   overflow: hidden;
 }
@@ -675,18 +672,14 @@ body { background: var(--field-paper); transition: background-color 900ms ease; 
 html[data-chapter="cultivation"] { --field-paper: #22311d; }
 html[data-chapter="cultivation"] .narrative-copy h2,
 html[data-chapter="cultivation"] .narrative-copy p,
-html[data-chapter="cultivation"] .eyebrow,
-html[data-chapter="cultivation"] .side-note { color: var(--culture-white); text-shadow: none; }
+html[data-chapter="cultivation"] .narrative > .eyebrow,
+html[data-chapter="cultivation"] .cultivation-frame > .eyebrow { color: var(--culture-white); text-shadow: none; }
 .brand-header { position: fixed; padding-top: 25px; padding-bottom: 18px; color: var(--foundry-green); }
 .header-links { display: flex; gap: 35px; }
 .header-link { font-size: 12px; }
 html[data-chapter="cultivation"] .brand-header,
-html[data-chapter="material"] .brand-header { color: var(--culture-white); text-shadow: 0 1px 8px #22311d; }
+html[data-chapter="material"] .brand-header { color: var(--culture-white); text-shadow: none; }
 .wordmark { font-size: 13px; letter-spacing: .08em; }
-.journey-progress { position: fixed; inset: 0 auto auto 0; height: 2px; width: 100%; transform-origin: left; transform: scaleX(var(--journey,0)); background: var(--growth-green); z-index: 40; pointer-events: none; }
-.arrival-observation { position: absolute; left: 66%; top: 18%; display: flex; align-items: center; gap: 9px; font-size: 10px; letter-spacing: .1em; color: var(--growth-green); }
-.observation-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
-.observation-line { position: absolute; top: 26px; left: 2px; height: 48px; width: 1px; background: currentColor; opacity: .35; }
 .arrival-statement h1 { font-size: clamp(76px, 8.4vw, 146px); }
 .life { min-height: 95svh; }
 .life .narrative-copy { margin-left: 0; margin-top: 18vh; }
@@ -698,8 +691,6 @@ html[data-chapter="material"] .brand-header { color: var(--culture-white); text-
 html[data-chapter="conditions"] .foundry-calibration,
 html[data-chapter="conditions"] .boundary-caption { visibility:hidden; }
 .foundry { min-height: 110svh; }
-.foundry-calibration { position: absolute; left: var(--page-x); right: 26.5%; top: 22vh; display: flex; justify-content: space-between; align-items: center; gap: 24px; font-size: 10px; letter-spacing: .08em; color: var(--growth-green); }
-.foundry-calibration i { height: 1px; background: currentColor; flex: 1; opacity: .35; }
 .foundry .narrative-copy { margin-top: 42vh; }
 .cultivation { min-height: 120svh; }
 .cultivation .narrative-copy { margin-top: 25vh; max-width: 85%; }
@@ -723,24 +714,21 @@ html[data-chapter="conditions"] .boundary-caption { visibility:hidden; }
 .closing { background: var(--culture-white); color: var(--foundry-green); min-height: 85svh; }
 .closing .eyebrow { color: var(--growth-green); }
 .closing h2 { font-size: clamp(80px,11vw,170px); }
-.motion-control { background: transparent; text-shadow: 0 0 5px var(--field-paper); }
+.motion-control { background: transparent; text-shadow: none; }
 html[data-chapter="cultivation"] .motion-control { color: var(--culture-white); }
 html[data-engine="static"] .cultivation { background: var(--foundry-green); }
 html[data-engine="static"] .cultivation h2, html[data-engine="static"] .cultivation p { color: var(--culture-white); text-shadow: none; }
 @media(max-width:1100px) {
- .arrival-observation { left: 64%; }
  .cultivation .narrative-copy { max-width: 100%; }
 }
 @media(max-width:600px) {
  .brand-header { padding-top: 22px; }
  .header-links { gap: 0; }
  .header-links a:last-child { display: none; }
- .arrival-observation { top: 18%; left: 54%; font-size: 9px; }
  .arrival-statement h1 { font-size: clamp(56px,16vw,72px); }
  .life .narrative-copy, .conditions .narrative-copy { margin-top: 33vh; }
  .life h2 { font-size: 13vw; }
  .life .narrative-copy > p, .cultivation .narrative-copy p { margin-left: 0; }
- .foundry-calibration { top: 21vh; right: var(--page-x); font-size: 9px; gap: 12px; }
  .cultivation { min-height: 110svh; }
  .cultivation .narrative-copy { margin-top: 34vh; }
  .cultivation h2 { font-size: 14vw; }
@@ -769,15 +757,9 @@ html[data-chapter="cultivation"] .brand-header { color: var(--culture-white); }
 /* One sustained encounter: growth → connected sheets → physical matter. */
 html[data-engine="live"] .cultivation { height: 180svh; min-height: 0; padding: 0; overflow: visible; }
 .cultivation-frame { position: relative; }
-html[data-engine="live"] .cultivation-frame { position: sticky; top: 0; min-height: 100svh; padding: 100px var(--page-x) 90px; overflow: clip; }
+html[data-engine="live"] .cultivation-frame { position: sticky; top: 0; min-height: 100svh; padding: 100px var(--page-x) 90px; overflow: visible; }
 html[data-engine="live"] .cultivation .narrative-copy { margin-top: 20vh; }
 .cultivation .narrative-copy { opacity: calc(1 - var(--tissue,0) * .65); }
-.tissue-sequence { display: flex; align-items: center; gap: 15px; margin-top: 65px; max-width: 470px; font-size: 12px; letter-spacing: .06em; color: var(--culture-white); }
-.tissue-sequence i { flex: 1; height: 1px; background: currentColor; opacity: .25; }
-.tissue-sequence span { opacity: .35; transition: opacity .5s; }
-[data-phase="connect"] .tissue-sequence span:first-child,
-[data-phase="concentrate"] .tissue-sequence span:nth-child(3),
-[data-phase="become"] .tissue-sequence span:last-child { opacity: 1; }
 html[data-engine="live"][data-chapter="material"] { --field-paper: #22311d; }
 html[data-engine="live"][data-chapter="material"] .brand-header,
 html[data-engine="live"][data-chapter="material"] .material-heading,
@@ -789,11 +771,9 @@ html[data-engine="live"] .material-heading h2 { font-size: clamp(64px,8vw,130px)
  html[data-engine="live"] .cultivation { height: 155svh; }
  html[data-engine="live"] .cultivation-frame { padding-top: 90px; padding-bottom: 60px; }
  html[data-engine="live"] .cultivation .narrative-copy { margin-top: 30vh; }
- .tissue-sequence { gap: 8px; margin-top: 35px; font-size: 10px; }
  html[data-engine="live"] .material-heading h2 { font-size: 12vw; }
 }
 html:not([data-engine="live"]) .cultivation .narrative-copy { opacity: 1; }
-html:not([data-engine="live"]) .tissue-sequence span { opacity: 1; }
 
 .cultivation .narrative-copy { opacity: 1; }
 .cultivation .narrative-copy > p { max-width: 320px; }
@@ -859,7 +839,6 @@ html:not([data-engine="live"]) .cultivation p { color:var(--culture-white); text
  html[data-engine="live"] .cultivation .narrative-copy { margin-top:8svh; }
  html[data-engine="live"] .cultivation h2 { font-size:clamp(36px,7vw,70px); }
  .cultivation .side-note { display:none; }
- .tissue-sequence { margin-top:22px; }
 }
 @media(max-width:360px) {
  .brand-header { gap:12px; }

@@ -4,7 +4,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 const require=createRequire(import.meta.url);
 const {chromium}=require(process.env.HUNER_PLAYWRIGHT_PATH||'/Users/huneli/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
-const output=path.resolve('../output/research-journey-review');await mkdir(output,{recursive:true});
+const output=path.resolve(process.env.HUNER_REVIEW_OUTPUT||'../output/research-journey-review');await mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.HUNER_TEST_BROWSER||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const origin=process.env.HUNER_REVIEW_URL||'http://127.0.0.1:3000',checks=[],errors=[];
 const shot=async(p,selector,name)=>{const e=p.locator(selector).first();await e.scrollIntoViewIfNeeded();await p.waitForTimeout(200);await e.screenshot({path:path.join(output,name+'.png'),style:'.brand-header,.motion-control,.skip-link,.journey-progress{visibility:hidden!important}'});};
@@ -29,6 +29,18 @@ try{
  await p.evaluate(()=>{const e=document.getElementById('material');scrollTo({top:e.offsetTop+(e.offsetHeight-innerHeight)*.72,behavior:'instant'});});
  await p.waitForFunction(()=>document.documentElement.dataset.readingSurface==='none'&&Number(document.querySelector('.field-layer canvas').style.opacity)>.9);
  assert.equal(await p.locator('.field-layer').evaluate(e=>getComputedStyle(e).visibility),'visible');checks.push('Reading surface stops hidden rendering; original cell returns on reverse scroll');
+ for(const [name,width,height] of [['phone-live',390,844],['landscape-live',844,390]]) {
+  await p.setViewportSize({width,height});await p.waitForTimeout(250);
+  await p.evaluate(()=>{const e=document.getElementById('material');scrollTo({top:e.offsetTop+(e.offsetHeight-innerHeight)*.72,behavior:'instant'});});
+  await p.waitForFunction(()=>Number(document.getElementById('material').dataset.progress)>.7);
+  await p.waitForFunction(()=>document.documentElement.dataset.readingSurface==='none');await p.waitForTimeout(1000);
+  const boxes=await p.evaluate(()=>({controls:document.querySelector('.cell-study-guide').getBoundingClientRect().toJSON(),caption:document.querySelector('.material-caption').getBoundingClientRect().toJSON()}));
+  assert.ok(boxes.controls.bottom<=boxes.caption.top,`${name}: cell controls must not overlap caption`);
+  assert.ok(boxes.controls.left>=0&&boxes.controls.right<=width);
+  await p.getByRole('button',{name:'Nucleus',exact:false}).click();assert.equal(await p.getByRole('dialog').isVisible(),true);await p.keyboard.press('Escape');
+  await p.screenshot({path:path.join(output,name+'.png')});checks.push(`${name}: complete cell controls stay clear of caption and open explanations`);
+ }
+ await p.setViewportSize({width:1440,height:1000});
  const lens=p.locator('#inquiry .measurement-lens');await lens.getByRole('button',{name:/Morphology/}).click();
  assert.equal(await lens.locator('.culture-specimen').getAttribute('data-observation'),'morphology');
  await lens.getByRole('button',{name:/Morphology/}).focus();await p.keyboard.press('ArrowDown');assert.equal(await lens.getAttribute('data-step'),'2');
@@ -46,7 +58,7 @@ try{
   assert.equal(await ml.locator('.question-mark').first().evaluate(e=>getComputedStyle(e).gridRow),'1');
   await shot(m,'#inquiry',`inquiry-${name}`);
   await m.getByRole('button',{name:'Vacuole',exact:false}).click();assert.equal(await m.getByRole('dialog').isVisible(),true);assert.match(await m.getByRole('dialog').innerText(),/internal compartment/);await m.screenshot({path:path.join(output,`cell-explanation-${name}.png`)});await m.keyboard.press('Escape');
-  await m.locator('#inquiry').scrollIntoViewIfNeeded();assert.equal(await ml.getAttribute('data-motion'),'still');checks.push(`${name}: no overflow, touch controls, cell dialog and reduced motion`);await context.close();
+  await m.locator('#inquiry').scrollIntoViewIfNeeded();assert.equal(await ml.getAttribute('data-step'),'2');checks.push(`${name}: no overflow, touch controls, cell dialog and reduced motion`);await context.close();
  }
  const nojs=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});const plain=await nojs.newPage();await plain.goto(origin+'/');await plain.locator('#inquiry .full-sequence summary').click();assert.match(await plain.locator('#inquiry .full-sequence').innerText(),/More biomass does not/);checks.push('No-JavaScript complete measurement explanation');await nojs.close();
  assert.deepEqual(errors,[]);console.log(JSON.stringify({checks,errors,output},null,2));

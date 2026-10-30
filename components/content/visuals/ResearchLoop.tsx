@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ScienceIcon } from "./ScientificDrawing";
-import { useVisualProgress } from "./VisualMotion";
 
 const streams = [
   { title: "Laboratory", kind: "culture", action: "Observe the biological system.", copy: "Traceable cultures, documented conditions and suitable measurements give an interpretation something to answer to.", to: "Observations inform the model.", x: 240, y: 60 },
@@ -11,13 +10,11 @@ const streams = [
 ] as const;
 
 export default function ResearchLoop() {
-  const [active, setActive] = useState(0), [manual, setManual] = useState(false);
-  const ref = useVisualProgress(setActive, 3, manual);
-  return <div ref={ref} className="research-circuit" data-step={active}>
-    <div className="visual-toolbar"><span>THREE PERSPECTIVES / ONE PROCESS QUESTION</span><button type="button" aria-pressed={!manual} onClick={() => setManual(!manual)}>{manual ? "Follow scroll ↓" : "Scroll emphasis on Ⅱ"}</button></div>
+  const [active, setActive] = useState<number | null>(0), id = useId();
+  return <div className="research-circuit" data-step={active}>
     <div className="circuit-layout">
       <figure className="circuit-figure">
-        <svg viewBox="0 0 480 380" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+        <svg viewBox="-8 -18 496 410" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
           <circle cx="240" cy="210" r="146" className="visual-registration" strokeDasharray="2 8"/>
           <path className="circuit-route" d="M273 67Q402 86 395 251M361 312Q240 383 119 312M85 251Q78 86 207 67"/>
           <path d="m389 242 6 10 6-10M130 310l-12 2 5 10M199 62l9 5-7 8"/>
@@ -30,11 +27,12 @@ export default function ResearchLoop() {
       </figure>
       <div className="circuit-streams">
         {streams.map((stream,i) => <div className="circuit-stream" key={stream.title} data-selected={i===active}>
-          <button type="button" aria-pressed={i===active} onClick={() => { setManual(true); setActive(i); }}><span className="circuit-number">0{i+1}</span><ScienceIcon kind={stream.kind}/><span>{stream.title}</span><span aria-hidden="true">↗</span></button>
-          <h3>{stream.action}</h3><p>{stream.copy}</p><p className="circuit-takeaway">{stream.to}</p>
+          <button type="button" aria-expanded={i===active} aria-controls={`${id}-stream-${i}`} onClick={() => setActive(i===active ? null : i)}><span className="circuit-number">0{i+1}</span><ScienceIcon kind={stream.kind}/><span>{stream.title}</span><span aria-hidden="true">{i===active ? "−" : "+"}</span></button>
+          <div id={`${id}-stream-${i}`} hidden={i!==active}><h3>{stream.action}</h3><p>{stream.copy}</p><p className="circuit-takeaway">{stream.to}</p></div>
         </div>)}
       </div>
     </div>
+    <details className="full-sequence"><summary>Read all three research perspectives</summary>{streams.map(stream=><div key={stream.title}><h4>{stream.title}</h4><p>{stream.action} {stream.copy} {stream.to}</p></div>)}</details>
     <p className="scope-caption">Huner’s proposed learning framework. Connections show intended information flow, not measured effects or completed validation.</p>
   </div>;
 }

@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.HUNER_PLAYWRIGHT_PATH || 'playwright');
-const output = path.resolve('../output/visual-stories-review');
+const output = path.resolve(process.env.HUNER_REVIEW_OUTPUT || '../output/visual-stories-review');
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: process.env.HUNER_TEST_BROWSER });
 const errors = [], checks = [];
@@ -28,8 +28,8 @@ try {
   const process = page.locator('.visual-process');
   const at = async fraction => process.evaluate((el, f) => scrollTo({ top: scrollY + el.getBoundingClientRect().top + el.offsetHeight * f - innerHeight * .78, behavior: 'instant' }), fraction);
   await at(.05); await page.waitForTimeout(120); assert.equal(await process.getAttribute('data-step'), '0');
-  await at(.65); await page.waitForTimeout(120); assert.equal(await process.getAttribute('data-step'), '3');
-  checks.push('Scroll changes the process emphasis');
+  await at(.65); await page.waitForTimeout(120); assert.equal(await process.getAttribute('data-step'), '0');
+  checks.push('Scrolling preserves the initial process selection');
   await page.getByRole('tab', { name: /02 Cultivate/ }).click();
   assert.match(await page.getByRole('tabpanel').innerText(), /Conditions become/);
   await at(.7); await page.waitForTimeout(120); assert.equal(await process.getAttribute('data-step'), '1');
@@ -67,7 +67,7 @@ try {
   await page.emulateMedia({ reducedMotion:'reduce' });
   await page.goto(origin+'/approach/',{waitUntil:'networkidle'});
   await page.locator('.visual-process').scrollIntoViewIfNeeded(); await page.waitForTimeout(100);
-  assert.equal(await page.locator('.visual-process').getAttribute('data-motion'),'still');
+  assert.equal(await page.locator('.visual-toolbar').count(),0);
   assert.equal(await page.locator('.visual-process').getAttribute('data-step'),'0');
   await page.getByRole('tab',{name:/04 Specify/}).click(); assert.match(await page.getByRole('tabpanel').innerText(),/Agree on what crosses/);
   checks.push('Reduced motion is static, controls still work');
@@ -85,7 +85,7 @@ try {
   await page.screenshot({path:path.join(output,'preserved-3d-cell.png')});
   checks.push('Preserved 3D cell rendered');
   await page.locator('#process').scrollIntoViewIfNeeded();
-  assert.equal(await page.locator('.visual-process').getAttribute('data-motion'),'still');
+  assert.equal(await page.locator('.visual-toolbar').count(),0);
   await capture(page,'#process','home-process'); await capture(page,'#research','home-research');
   await page.locator('#food').scrollIntoViewIfNeeded(); await page.screenshot({path:path.join(output,'home-food.png')});
   await inspect(page,'Home with shared motion pause');

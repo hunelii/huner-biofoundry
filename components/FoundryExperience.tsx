@@ -1,13 +1,13 @@
 "use client";
 import { useState, type ComponentType, type ReactNode } from "react";
 import ApplicationTrace from "./content/visuals/ApplicationTrace";
-import { VisualMotionContext } from "./content/visuals/VisualMotion";
 import SiteNavigation from "./content/SiteNavigation";
 import CellStudyGuide from "./content/CellStudyGuide";
 import JourneyReadingTheme from "./content/JourneyReadingTheme";
 import dynamic from "next/dynamic";
 import MilestoneJourney from "./MilestoneJourney";
 import TeamCollective from "./TeamCollective";
+import StillOrganism from "./StillOrganism";
 const LivingFoundry = dynamic(
   () => import("@/living-foundry/LivingFoundryCanvas"),
   { ssr: false },
@@ -15,22 +15,20 @@ const LivingFoundry = dynamic(
 export default function FoundryExperience({ SpatialLayer, content, processContent }: { SpatialLayer?: ComponentType<{ paused: boolean }>; content?: ReactNode; processContent?: ReactNode } = {}) {
   const [paused, setPaused] = useState(false);
   return (
-    <VisualMotionContext value={paused}>
+    <>
       <a className="skip-link" href="#arrival">
         Skip to content
       </a>
       <SiteNavigation home />
       <JourneyReadingTheme />
-      <div className="journey-progress" aria-hidden="true" />
       <main id="arrival" tabIndex={-1}>
         <div className="field-layer" aria-hidden="true">
           {SpatialLayer ? <SpatialLayer paused={paused} /> : <>
-            <div className="still-organism" />
+            <StillOrganism />
             <LivingFoundry paused={paused} />
           </>}
         </div>
         <section className="arrival" aria-labelledby="arrival-title">
-          <div className="arrival-observation" aria-hidden="true"><span className="observation-dot" /> A LIVING POSSIBILITY<span className="observation-line" /></div>
           <div className="arrival-statement">
             <h1 id="arrival-title">
               <span className="making">Making</span> with life,
@@ -70,11 +68,6 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
               What becomes useful depends on the organism and the application.
             </p>
           </div>
-          <p className="side-note">
-            POTENTIAL,
-            <br />
-            ALREADY LIVING.
-          </p>
         </section>
         <section
           id="conditions"
@@ -103,7 +96,7 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
             condition <span aria-hidden="true">↗</span>
           </button>
           <p className="response-note" role="status" id="condition-status" />
-          <p className="condition-context">A local influence. A delayed response.<br /><span>Illustrative environmental field, not a calibrated cultivation model.</span></p>
+          <p className="condition-context"><span>Illustrative environmental field, not a calibrated cultivation model.</span></p>
         </section>
         <section
           id="foundry"
@@ -122,11 +115,6 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
               can help us understand fungal production.
             </p>
           </div>
-          <div className="foundry-calibration" aria-hidden="true"><span>OPEN FIELD</span><i /><span>CULTIVATED SPACE</span></div>
-          <p className="boundary-caption">
-            A BOUNDARY.
-            <br />A DIFFERENT POSSIBILITY.
-          </p>
         </section>
         <section id="cultivation" className="narrative cultivation" aria-labelledby="cultivation-title">
           <div className="cultivation-frame">
@@ -135,8 +123,6 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
             <h2 id="cultivation-title">Give possibility<br />time to grow.</h2>
             <p>Conditions shape growth. Cultivation turns that growth into something we can work with.</p>
           </div>
-          <div className="tissue-sequence" aria-hidden="true"><span>CONNECT</span><i /><span>CONCENTRATE</span><i /><span>BECOME</span></div>
-          <p className="side-note">LIVING SYSTEM.<br />EMERGING STRUCTURE.</p>
           </div>
         </section>
         <section
@@ -180,9 +166,9 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
           </nav>
         </div>
         {[
-          { id: "food", number: "01", title: "Food", line: "A possible ingredient begins upstream.", copy: "Biomass composition, safety and consistency matter to a downstream food application. This is a research direction, not an available Huner product.", behavior: "ACCUMULATION" },
-          { id: "fragrance", number: "02", title: "Fragrance", line: "Cultivating the question of aroma.", copy: "A volatile profile needs chemical characterization and application-specific evaluation. Growing biomass alone does not recreate a finished aroma.", behavior: "DIFFUSION" },
-          { id: "raw-materials", number: "03", title: "Raw materials", line: "Structure before transformation.", copy: "Filamentous biomass could be a starting point for materials. Morphology and downstream compatibility remain specific to each application.", behavior: "STRUCTURE" },
+          { id: "food", number: "01", title: "Food", line: "A possible ingredient begins upstream.", copy: "Biomass composition, safety and consistency matter to a downstream food application. This is a research direction, not an available Huner product." },
+          { id: "fragrance", number: "02", title: "Fragrance", line: "Cultivating the question of aroma.", copy: "A volatile profile needs chemical characterization and application-specific evaluation. Growing biomass alone does not recreate a finished aroma." },
+          { id: "raw-materials", number: "03", title: "Raw materials", line: "Structure before transformation.", copy: "Filamentous biomass could be a starting point for materials. Morphology and downstream compatibility remain specific to each application." },
         ].map((application) => (
           <section key={application.id} id={application.id} className={`narrative application ${application.id}`} aria-labelledby={`${application.id}-title`}>
             <p className="eyebrow">{application.number} / APPLICATION DIRECTION</p>
@@ -193,7 +179,6 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
               <ApplicationTrace direction={application.id as "food" | "fragrance" | "raw-materials"} />
               <a className="text-link" href={`/applications/#${application.id}`}>Explore this direction ↗</a>
             </div>
-            <p className="behavior-note">{application.behavior}<br /><span>Illustrative living study</span></p>
           </section>
         ))}
         {content}
@@ -219,6 +204,6 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
       >
         {paused ? "Resume motion" : "Pause motion"}
       </button>
-    </VisualMotionContext>
+    </>
   );
 }
