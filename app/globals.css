@@ -787,7 +787,7 @@ html[data-engine="live"][data-chapter="material"] .motion-control { color: var(-
 .cell-legend { position:absolute; top:110px; right:var(--page-x); display:flex; flex-direction:column; gap:12px; color:#f4f1e8; font-size:12px; opacity:clamp(0, calc((var(--material-progress, 0) - .55) * 4), 1); }
 .cell-legend span { display:flex; align-items:center; gap:10px; }
 .cell-legend i { width:7px; height:7px; border-radius:50%; }
-.wall-key { background:#a6ad83; } .nucleus-key { background:#c19255; } .mitochondria-key { background:#85996b; } .vacuole-key { background:#d7dcc0; }
+.wall-key { background:#a6ad83; } .spitzenkorper-key { background:#e2dd75; } .nucleus-key { background:#c19255; } .vacuole-key { background:#78a870; } .mitochondria-key { background:#dea038; }
 html:not([data-engine="live"]) .cell-legend { opacity:1; top:auto; bottom:150px; }
 @media(max-width:600px) {
  .cell-legend { top:100px; left:var(--page-x); right:auto; gap:9px; font-size:11px; }

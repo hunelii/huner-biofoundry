@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { cellJourney, cellFinale } from "./material-transition";
 
-/** Original, generalized fungal-cell cutaway. Illustrative anatomy, not to scale. */
+/** Fungal cell (Pleurotus ostreatus / Basidiomycota) cutaway anatomy with scientific fungal hallmarks. */
 export class FungalCell {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(35, 1, .1, 30);
@@ -94,18 +94,41 @@ export class FungalCell {
       const result = new THREE.MeshPhysicalMaterial({ color, roughness, metalness: 0, bumpMap: relief, bumpScale, clearcoat, clearcoatRoughness: .36, side: THREE.DoubleSide });
       this.materials.add(result); return result;
     };
-    const wall = material(0x6c8056, .72, .025);
-    const wallEdge = material(0xb8bc8b, .65, .016);
-    const membrane = material(0x607548, .5, .009, .18);
-    const cytoplasm = material(0x354c2b, .78, .015);
-    const ribosome = material(0xb0b68d, .65, .006);
-    const nucleus = material(0xa87b48, .62, .015, .15);
-    const nuclearEdge = material(0xd2b481, .53, .009);
-    const chromatin = material(0x74502d, .56, .005);
-    const vacuole = material(0xb7c59d, .29, .008, .5);
-    const mitoOuter = material(0x9eae76, .58, .012);
-    const mitoInner = material(0x57693d, .68, .013);
-    const cristae = material(0xc0c893, .5, .008, .15);
+
+    // Fungal-specific biochemical layers & organelle materials:
+    // Outer protective layer: Mannoproteins & melanin pigmentation
+    const wallMelanin = material(0x657850, .74, .025);
+    // Middle structural scaffold: Branched beta-(1,3) and beta-(1,6)-glucan network
+    const betaGlucan = material(0x8ea06a, .65, .016);
+    // Inner tensile core: Crystalline chitin microfibril bundles
+    const chitinFibrils = material(0xc2c99a, .52, .012, .18);
+    // Plasma membrane: Ergosterol-rich lipid bilayer
+    const ergosterolMembrane = material(0x4a6540, .48, .009, .20);
+    // Viscous cytosol
+    const cytoplasm = material(0x2d4023, .80, .015);
+    // Nuclear envelope (double membrane)
+    const nucleus = material(0xa27542, .60, .014, .16);
+    // Nuclear pore complexes (NPC) & envelope margin
+    const nuclearEdge = material(0xd4b47c, .52, .009);
+    // Fungal chromatin & dense nucleolus (rRNA assembly)
+    const chromatin = material(0x6f4b28, .58, .006);
+    // Spindle Pole Body (SPB): The fungal centrosome equivalent embedded in the nuclear envelope
+    const spbMaterial = material(0x38552c, .42, .008, .25);
+    // Dynamic tubular-vesicular vacuolar membrane
+    const vacuole = material(0xb0c296, .28, .008, .52);
+    // Dense polyphosphate (volutin) storage granules inside vacuolar lumen
+    const polyphosphate = material(0x72a562, .22, .005, .82);
+    // Fungal tubular mitochondria: Outer envelope, respiratory matrix, folded inner cristae
+    const mitoOuter = material(0x94a66e, .56, .012);
+    const mitoInner = material(0x526639, .68, .013);
+    const cristae = material(0xb8c48a, .48, .008, .18);
+    // Spitzenkörper: Apical vesicle cluster & Chitosomes (chitin synthase carriers)
+    const chitosome = material(0xe0dd75, .32, .005, .55);
+    const secretoryVesicle = material(0xa6c672, .42, .007, .38);
+    // Cytoplasmic energy reserves: Neutral lipid droplets (ergosterol esters / TAGs)
+    const lipidDroplet = material(0xdca038, .22, .006, .78);
+    // 80S fungal ribosomes and glycogen rosettes
+    const ribosome = material(0xb2b88e, .65, .006);
 
     // Sculpt the open wall into a subtly irregular, thick elliptical cup.
     const shell = new THREE.SphereGeometry(1, 160, 112, Math.PI, Math.PI);
@@ -116,28 +139,33 @@ export class FungalCell {
       position.setXYZ(i, x * ripple, y * ripple, z * ripple);
     }
     shell.computeVertexNormals();
-    this.mesh(shell, wall).scale.set(1.62, 1.08, .76);
-    const frontMaterial = wall.clone(); frontMaterial.transparent = true; frontMaterial.depthWrite = false; this.materials.add(frontMaterial);
+    this.mesh(shell, wallMelanin).scale.set(1.62, 1.08, .76);
+    const frontMaterial = wallMelanin.clone(); frontMaterial.transparent = true; frontMaterial.depthWrite = false; this.materials.add(frontMaterial);
     const frontGeometry = new THREE.SphereGeometry(1, 128, 96, 0, Math.PI); this.geometries.add(frontGeometry);
-    this.front = new THREE.Mesh(frontGeometry, frontMaterial); this.front.scale.set(1.62,1.08,.76); this.front.receiveShadow = true; this.body.add(this.front);
+    this.front = new THREE.Mesh(frontGeometry, frontMaterial); this.front.scale.set(1.62, 1.08, .76); this.front.receiveShadow = true; this.body.add(this.front);
     this.mesh(new THREE.SphereGeometry(1, 128, 96, Math.PI, Math.PI), cytoplasm).scale.set(1.49, .97, .65);
-    // Fibrous laminations across the cut wall, with a distinct membrane beneath it.
+
+    // Stratified fungal cell wall: outer mannoprotein/melanin -> middle beta-glucan -> inner chitin
     for (let layer = 0; layer < 9; layer++) {
       const points = Array.from({ length: 160 }, (_, i) => {
         const a = i / 160 * Math.PI * 2, wrinkle = Math.sin(a * 31 + layer * .5) * .003;
         return new THREE.Vector3(Math.cos(a) * (1.50 + layer * .014 + wrinkle), Math.sin(a) * (.972 + layer * .012 + wrinkle), .018 + Math.sin(layer / 8 * Math.PI) * .024);
       });
-      this.tube(points, .008, layer % 3 ? wall : wallEdge, this.body, true);
+      // Outer 3 layers: Melanin & mannoprotein armor
+      // Middle 3 layers: beta-(1,3)-glucan structural fibers
+      // Inner 3 layers: Crystalline chitin microfibril bundles
+      const mat = layer >= 6 ? wallMelanin : layer >= 3 ? betaGlucan : chitinFibrils;
+      this.tube(points, .008, mat, this.body, true);
     }
     for (const depth of [-.002, .023]) {
       const points = Array.from({ length: 128 }, (_, i) => { const a = i / 128 * Math.PI * 2; return new THREE.Vector3(Math.cos(a) * 1.482, Math.sin(a) * .958, depth); });
-      this.tube(points, .008, membrane, this.body, true);
+      this.tube(points, .008, ergosterolMembrane, this.body, true);
     }
     const lipids = Array.from({ length: 1200 }, (_, i) => {
       const a = i / 600 * Math.PI * 2, row = i < 600 ? 0 : 1;
       return { position: new THREE.Vector3(Math.cos(a) * (1.472 - row * .016), Math.sin(a) * (.947 - row * .011), .03), scale: new THREE.Vector3(.005, .005, .007) };
     });
-    this.instances(lipids, wallEdge, 0);
+    this.instances(lipids, chitinFibrils, 0);
 
     // A second cutaway exposes chromatin inside the nucleus.
     const nuclear = new THREE.Group(); nuclear.position.set(-.55, .21, .06); this.body.add(nuclear);
@@ -166,6 +194,63 @@ export class FungalCell {
       pore.position.copy(n).multiplyScalar(.367); pore.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
     }
 
+    // Spindle Pole Body (SPB): The fungal centrosome equivalent embedded in the nuclear envelope
+    const spbGroup = new THREE.Group();
+    spbGroup.position.set(-.18, .26, .18);
+    nuclear.add(spbGroup);
+    const spbPlaque = this.mesh(new THREE.CylinderGeometry(.026, .026, .012, 16), spbMaterial, spbGroup);
+    spbPlaque.rotation.x = Math.PI / 2;
+    for (let m = 0; m < 5; m++) {
+      const a = m / 5 * Math.PI * 2;
+      const pts = [
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(Math.cos(a) * .06, Math.sin(a) * .06, .03),
+        new THREE.Vector3(Math.cos(a) * .12, Math.sin(a) * .12, .07)
+      ];
+      this.tube(pts, .0022, betaGlucan, spbGroup);
+    }
+
+    // Spitzenkörper: Apical vesicle cluster & Chitosomes (chitin synthase carriers)
+    // Directing polarized hyphal growth and cell wall remodeling
+    for (let k = 0; k < 3; k++) {
+      const trackPoints = [
+        new THREE.Vector3(.45 + k * .08, .12 - k * .05, -.02),
+        new THREE.Vector3(.78 + k * .06, .28 + k * .02, .02),
+        new THREE.Vector3(1.05 + k * .03, .45 + k * .02, .06),
+        new THREE.Vector3(1.15, .52, .08)
+      ];
+      this.tube(trackPoints, .003, ergosterolMembrane, this.body, false);
+    }
+    const chitosomeVesicles: { position: THREE.Vector3; scale: THREE.Vector3 }[] = [];
+    for (let i = 0; i < 70; i++) {
+      const r = Math.pow(this.random(), 0.6) * 0.045;
+      const theta = this.random() * Math.PI * 2, phi = (this.random() - .5) * Math.PI;
+      chitosomeVesicles.push({
+        position: new THREE.Vector3(
+          1.15 + r * Math.cos(theta) * Math.cos(phi),
+          .52 + r * Math.sin(theta) * Math.cos(phi) * 0.9,
+          .08 + r * Math.sin(phi) * 0.7
+        ),
+        scale: new THREE.Vector3(.0045, .0045, .0045)
+      });
+    }
+    this.instances(chitosomeVesicles, chitosome, 1);
+
+    const secretoryMantle: { position: THREE.Vector3; scale: THREE.Vector3 }[] = [];
+    for (let i = 0; i < 90; i++) {
+      const r = 0.04 + Math.pow(this.random(), 0.7) * 0.065;
+      const theta = this.random() * Math.PI * 2, phi = (this.random() - .5) * Math.PI;
+      secretoryMantle.push({
+        position: new THREE.Vector3(
+          1.15 + r * Math.cos(theta) * Math.cos(phi),
+          .52 + r * Math.sin(theta) * Math.cos(phi) * 0.9,
+          .08 + r * Math.sin(phi) * 0.7
+        ),
+        scale: new THREE.Vector3(.0075, .0075, .0075)
+      });
+    }
+    this.instances(secretoryMantle, secretoryVesicle, 1);
+
     // Corrugated endoplasmic-reticulum sheets, dotted with ribosomes.
     const erGranules: { position: THREE.Vector3; scale: THREE.Vector3 }[] = [];
     for (let layer = 0; layer < 6; layer++) {
@@ -179,7 +264,7 @@ export class FungalCell {
         if (i < 120 && j < 8) { const n = i * 9 + j; indices.push(n, n + 9, n + 1, n + 1, n + 9, n + 10); }
         if (i % 3 === 0 && j % 3 === 0) erGranules.push({ position: new THREE.Vector3(x, y, z + .008), scale: new THREE.Vector3(.005, .005, .006) });
       }
-      const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3)); geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); geometry.setIndex(indices); geometry.computeVertexNormals(); this.mesh(geometry, membrane);
+      const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3)); geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); geometry.setIndex(indices); geometry.computeVertexNormals(); this.mesh(geometry, ergosterolMembrane);
     }
     this.instances(erGranules, ribosome);
 
@@ -192,7 +277,38 @@ export class FungalCell {
       const radius = .006 + this.random() * .009;
       vesicles.push({ position: new THREE.Vector3(.55 + x * .482, -.1 + y * .532, -.07 + z * .304), scale: new THREE.Vector3(radius, radius, radius * .35) });
     }
-    this.instances(vesicles, membrane, 1);
+    this.instances(vesicles, ergosterolMembrane, 1);
+
+    // Polyphosphate (volutin) granules inside the fungal vacuolar lumen:
+    // Essential fungal energy/phosphate storage hallmark
+    const polyphosphateGranules: { position: THREE.Vector3; scale: THREE.Vector3 }[] = [];
+    for (let i = 0; i < 28; i++) {
+      const u = this.random() * Math.PI * 2, v = (this.random() - .5) * Math.PI;
+      const r = Math.pow(this.random(), 0.5) * 0.7;
+      const radius = .018 + this.random() * .022;
+      polyphosphateGranules.push({
+        position: new THREE.Vector3(
+          .55 + Math.cos(u) * Math.cos(v) * .35 * r,
+          -.1 + Math.sin(u) * Math.cos(v) * .38 * r,
+          -.07 + Math.sin(v) * .20 * r
+        ),
+        scale: new THREE.Vector3(radius, radius, radius)
+      });
+    }
+    this.instances(polyphosphateGranules, polyphosphate, 1);
+
+    // Neutral lipid droplets (spherosomes) containing ergosterol esters & triacylglycerols
+    const lipidDroplets: { position: THREE.Vector3; scale: THREE.Vector3 }[] = [];
+    for (let i = 0; i < 36; i++) {
+      const x = (this.random() - .5) * 2.5, y = (this.random() - .5) * 1.6;
+      if ((x / 1.35) ** 2 + (y / .85) ** 2 > 1 || ((x + .55) / .42) ** 2 + ((y - .21) / .42) ** 2 < 1 || ((x - .55) / .53) ** 2 + ((y + .1) / .59) ** 2 < 1) continue;
+      const r = .015 + Math.pow(this.random(), 2) * .022;
+      lipidDroplets.push({
+        position: new THREE.Vector3(x, y, -.02 + this.random() * .05),
+        scale: new THREE.Vector3(r, r, r)
+      });
+    }
+    this.instances(lipidDroplets, lipidDroplet, 1);
 
     // Mitochondrial cutaways: outer envelope, matrix, and folded inner membranes.
     for (const [x, y, rotation, size] of [[-1, -.38, -.45, 1], [.15, .66, .35, .9], [-.03, -.68, -.3, 1.05], [1.08, .35, .8, .85]]) {
@@ -214,11 +330,11 @@ export class FungalCell {
         const t = i / 47, a = .22 + t * Math.PI * .83;
         return new THREE.Vector3(.25 + Math.cos(a) * (.19 - j * .011), -.55 + Math.sin(a) * (.12 - j * .008) - j * .027, .02 + Math.sin(t * Math.PI) * .012);
       });
-      const cisterna = this.tube(points, .014, j % 2 ? membrane : mitoOuter); cisterna.scale.z = .5;
+      const cisterna = this.tube(points, .014, j % 2 ? ergosterolMembrane : mitoOuter); cisterna.scale.z = .5;
     }
     // Dense but instanced cytoplasmic particles preserve a small draw-call count.
     const granules = [];
-    for (let i = 0; i < 2300; i++) {
+    for (let i = 0; i < 2100; i++) {
       const x = (this.random() - .5) * 2.8, y = (this.random() - .5) * 1.75;
       if ((x / 1.40) ** 2 + (y / .88) ** 2 > 1 || ((x + .55) / .40) ** 2 + ((y - .21) / .4) ** 2 < 1 || ((x - .55) / .51) ** 2 + ((y + .1) / .57) ** 2 < 1) continue;
       const r = .003 + this.random() ** 3 * .009;

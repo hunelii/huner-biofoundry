@@ -2,12 +2,48 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 
-const cellSource = "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells";
+const cellSource = "https://openstax.org/books/biology-2e/pages/24-1-characteristics-of-fungi";
 const structures = [
-  { name: "Cell wall + membrane", key: "wall", title: "A boundary with two roles.", description: "The fungal wall provides structural support. The plasma membrane regulates movement between the cell and its surroundings.", question: "The environment matters. Understanding a cultivation system requires us to define the conditions around the organism.", source: "https://openstax.org/books/biology-2e/pages/24-1-characteristics-of-fungi" },
-  { name: "Nucleus", key: "nucleus", title: "Organization within the cell.", description: "Fungi are eukaryotes: their cells contain a membrane-bound nucleus housing genetic material.", question: "Identity matters. An experiment needs to name the organism and strain actually studied.", source: "https://openstax.org/books/biology-2e/pages/24-1-characteristics-of-fungi" },
-  { name: "Mitochondria", key: "mitochondria", title: "Energy has a cellular context.", description: "Mitochondria are organelles involved in cellular respiration and ATP production.", question: "A visible cell structure is not a measure of production. Growth and a chosen compound need their own observations.", source: cellSource },
-  { name: "Vacuole", key: "vacuole", title: "An internal compartment.", description: "Vacuoles are membrane-bound compartments associated with storage and other cellular functions.", question: "A schematic helps explain organization. It cannot establish the composition of a culture sample.", source: cellSource },
+  {
+    name: "Stratified wall & ergosterol membrane",
+    key: "wall",
+    title: "A fungal-specific composite barrier.",
+    description: "Unlike plant cellulose, the fungal cell wall is a layered composite: an outer protective mannoprotein/melanin coat, a structural β-(1,3)/(1,6)-glucan network, and an inner tensile scaffold of crystalline chitin microfibrils overlying an ergosterol-rich plasma membrane.",
+    question: "The chemical boundary defines susceptibility. Chitin and ergosterol pathways provide the primary selective targets in fungal bioprocess control.",
+    source: cellSource
+  },
+  {
+    name: "Spitzenkörper & Chitosomes",
+    key: "spitzenkorper",
+    title: "The apical organizing center of fungal growth.",
+    description: "Unique to higher fungi (Dikarya), the Spitzenkörper coordinates polarized tip extension and cell wall remodeling, supplying microvesicles (chitosomes) packed with chitin synthase and macrovesicles carrying glucan synthases along microtubule tracks.",
+    question: "Polarity drives morphology. Understanding how cultivation conditions influence apical vesicle flow allows deliberate control over pellet vs. filamentous growth regimes.",
+    source: cellSource
+  },
+  {
+    name: "Nucleus & Spindle Pole Body",
+    key: "nucleus",
+    title: "Closed mitosis without centrosomes.",
+    description: "Fungal nuclei maintain nuclear envelope integrity throughout division (closed mitosis). Instead of animal centrosomes, a disc-like Spindle Pole Body (SPB) embedded in the nuclear envelope organizes both spindle and astral microtubules alongside dense nuclear pore complexes.",
+    question: "Karyotype and ploidy matter. Basidiomycetes alternate between monokaryotic (n) and dikaryotic (n+n) vegetative phases, each with distinct enzymatic production capabilities.",
+    source: cellSource
+  },
+  {
+    name: "Fungal vacuole & polyphosphate",
+    key: "vacuole",
+    title: "A dynamic homeostasis and storage organelle.",
+    description: "The fungal vacuole functions as a tubular-vesicular network balancing turgor pressure, protein turnover, and nutrient reserves. It stores electron-dense polyphosphate (volutin) granules as accessible metabolic energy and phosphate reserves.",
+    question: "Phosphate availability regulates metabolic flux. Intracellular volutin levels indicate culture nutritional state and secondary metabolite induction.",
+    source: cellSource
+  },
+  {
+    name: "Mitochondria & Lipid bodies",
+    key: "mitochondria",
+    title: "Aerobic respiration and neutral lipid storage.",
+    description: "Tubular fungal mitochondria with folded cristae drive oxidative phosphorylation and ATP synthesis, closely interacting with neutral lipid droplets (triacylglycerols and ergosterol esters) and glycogen rosettes that serve as primary energy reserves.",
+    question: "Dissolved oxygen directly governs mitochondrial respiration efficiency and fatty acid desaturation in submerged fungal fermentation.",
+    source: "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells"
+  },
 ];
 
 export default function CellStudyGuide({ continueHref = "#inquiry" }: { continueHref?: string }) {
