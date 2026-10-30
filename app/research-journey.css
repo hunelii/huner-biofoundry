@@ -180,7 +180,6 @@ html[data-reading-surface="light"] .motion-control { color: var(--foundry-green)
   );
   mix-blend-mode: screen;
   will-change: opacity;
-  transition: opacity 100ms ease-out;
 }
 
 /* Bioprocess WebGL Iframe & Placeholder */
@@ -195,7 +194,6 @@ html[data-reading-surface="light"] .motion-control { color: var(--foundry-green)
   z-index: 2;
   background: transparent;
   will-change: opacity;
-  transition: opacity 120ms linear;
 }
 
 /* Phase A: Handoff Narrative Banner (positioned with generous clearance below site navbar) */

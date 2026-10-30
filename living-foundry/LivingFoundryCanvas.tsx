@@ -73,7 +73,7 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       if (bioEl && bioHeight > 0) {
         const bioScrollDist = Math.max(1, bioHeight - vh);
         const rawBioP = (currentScrollY - bioTop) / bioScrollDist;
-        const bioHandoffRatio = 0.16;
+        const bioHandoffRatio = 0.18;
         if (currentScrollY >= materialTop && currentScrollY < bioTop) {
           inMaterialWithBio = true;
         } else if (rawBioP >= 0 && rawBioP < bioHandoffRatio) {
@@ -137,9 +137,9 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
         if (inHandoffZone) {
           // Direct 3D Cell Superposition with smoothstep S-curve equal-power blending:
           // t = 0..0.35: Huner cell closes and rotates into place (canvasAlpha = 1)
-          // t = 0.35..0.70: Both cells glow and crossfade directly in place (canvasAlpha: 1 -> 0)
-          // t >= 0.70: Bioprocess spore takes over completely (canvasAlpha = 0)
-          const rawCrossfade = clamp((handoffT - 0.35) / 0.35);
+          // t = 0.35..0.75: Both cells locked in place; Huner fades 1 -> 0 as Bioprocess fades 0 -> 1
+          // t >= 0.75: Bioprocess spore takes over completely (canvasAlpha = 0)
+          const rawCrossfade = clamp((handoffT - 0.35) / 0.40);
           const easeCrossfade = rawCrossfade * rawCrossfade * (3 - 2 * rawCrossfade);
           const canvasAlpha = 1 - easeCrossfade;
           canvas.current.style.opacity = String(canvasAlpha);

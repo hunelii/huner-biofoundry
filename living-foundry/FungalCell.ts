@@ -372,22 +372,25 @@ export class FungalCell {
       this.front.visible = true;
       this.glowLight.intensity = finale.glow * 18.0;
 
-      // Smoothly align 3D rotation and vertical center with Bioprocess hero spore
-      const alignT = THREE.MathUtils.clamp(handoff / 0.40, 0, 1);
+      // Smoothly align 3D rotation, vertical center and scale with Bioprocess hero spore
+      const alignT = THREE.MathUtils.clamp(handoff / 0.35, 0, 1);
       const easeAlign = alignT * alignT * (3 - 2 * alignT);
       const curRotX = .18 - journey.opening * .08;
       const curRotY = -.32 + journey.opening * .42 + journey.inspect * .08;
       const curRotZ = -.18;
-      this.body.rotation.x = THREE.MathUtils.lerp(curRotX, -0.24, easeAlign);
-      this.body.rotation.y = THREE.MathUtils.lerp(curRotY, 0.22, easeAlign);
-      this.body.rotation.z = THREE.MathUtils.lerp(curRotZ, -0.36, easeAlign);
+      this.body.rotation.x = THREE.MathUtils.lerp(curRotX, -0.15, easeAlign);
+      this.body.rotation.y = THREE.MathUtils.lerp(curRotY, 0.10, easeAlign);
+      this.body.rotation.z = THREE.MathUtils.lerp(curRotZ, 0.0, easeAlign);
 
-      const targetY = THREE.MathUtils.lerp(endY, 0.50, easeAlign);
-      this.body.position.set((x - .5) * halfHeight * 2 * aspect, (targetY - .5) * halfHeight * 2, 0);
+      const targetX = THREE.MathUtils.lerp(x, 0.50 + 0.009, easeAlign);
+      const targetY = THREE.MathUtils.lerp(endY, 0.50 - 0.006, easeAlign);
+      this.body.position.set((targetX - .5) * halfHeight * 2 * aspect, (targetY - .5) * halfHeight * 2, 0);
 
-      // Match the exact 3D screen silhouette and diameter of Bioprocess's hero spore
-      const targetScale = THREE.MathUtils.lerp(1.0, 0.70, easeAlign);
-      this.body.scale.setScalar(targetScale);
+      // Match the exact 3D screen silhouette and aspect ratio of Bioprocess's hero spore
+      const targetScaleX = THREE.MathUtils.lerp(1.0, 0.71, easeAlign);
+      const targetScaleY = THREE.MathUtils.lerp(1.0, 1.40, easeAlign);
+      const targetScaleZ = THREE.MathUtils.lerp(1.0, 1.10, easeAlign);
+      this.body.scale.set(targetScaleX, targetScaleY, targetScaleZ);
     } else {
       this.front.material.opacity = 1 - journey.opening;
       this.front.visible = journey.opening < .999;
