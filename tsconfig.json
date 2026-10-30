@@ -23,5 +23,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "out", "02_V1_3D_SITE", "01_ANA_KAYNAKLAR", "00_OKU_BENI", "antigravity"]
+  "exclude": ["node_modules", ".next", "out", "02_V1_3D_SITE", "01_ANA_KAYNAKLAR", "00_OKU_BENI", "antigravity"]
 }

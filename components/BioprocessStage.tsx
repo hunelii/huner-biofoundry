@@ -33,7 +33,8 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
   const [isWarmedUp, setIsWarmedUp] = useState(false);
   const [veilOpacity, setVeilOpacity] = useState(0);
   const [activeStation, setActiveStation] = useState(1);
-  const [introOpacity, setIntroOpacity] = useState(1);
+  const [handoffT, setHandoffT] = useState(0);
+  const [inStationJourney, setInStationJourney] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   // Pre-load / warm up iframe WebGL context when reader scrolls near the section
@@ -51,7 +52,7 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
           observer.disconnect();
         }
       },
-      { rootMargin: "180% 0px" }
+      { rootMargin: "200% 0px" }
     );
     observer.observe(stage);
     return () => observer.disconnect();
@@ -74,7 +75,6 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
       const data = event.data;
       if (!data || typeof data !== "object") return;
       if (data.type === "bioprocess:ready") {
-        // Handshake: bioprocess is ready to receive handoff & scroll progress
         postToIframe({ type: "huner:handshake", status: "ok" });
       } else if (data.type === "bioprocess:error") {
         setHasError(true);
@@ -123,19 +123,21 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
           const t = Math.max(0, Math.min(1, rawProgress / handoffRatio));
           const finale = cellFinale(t);
 
-          // Update greenish-gold veil
+          setHandoffT(t);
+          setInStationJourney(false);
           setVeilOpacity(finale.veil);
-          // Intro card fades out during handoff
-          setIntroOpacity(Math.max(0, 1 - t * 2.2));
-          // Station 1 during handoff
           setActiveStation(1);
 
-          // Post handoff to iframe
-          postToIframe({ type: "huner:handoff", t });
+          // Phase-aligned handoff to Bioprocess:
+          // Bioprocess's t=0 is peak glow (which happens at Huner t=0.65..0.72)
+          // From Huner t=0.65 to 1.0, Bioprocess t goes from 0 to 1
+          const bioprocessT = t < 0.65 ? 0 : Math.max(0, Math.min(1, (t - 0.65) / 0.35));
+          postToIframe({ type: "huner:handoff", t: bioprocessT });
         } else {
-          // Beyond handoff: stations journey
+          // Beyond handoff: stations journey (8 stations)
+          setHandoffT(1);
+          setInStationJourney(true);
           setVeilOpacity(0);
-          setIntroOpacity(0);
 
           const stationP = Math.max(0, Math.min(1, (rawProgress - handoffRatio) / (1 - handoffRatio)));
           const stationIdx = Math.min(7, Math.floor(stationP * 8));
@@ -206,10 +208,35 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
           <div className="bioprocess-placeholder" aria-hidden="true" />
         )}
 
-        {/* Minimal HUD: Station details & 8-Station timeline tracker */}
-        <div className="bioprocess-hud" aria-live="polite">
+        {/* Phase A: Handoff Narrative Banner (visible ONLY during cell closing & glow) */}
+        <div
+          className="bioprocess-handoff-banner"
+          style={{
+            opacity: inStationJourney ? 0 : Math.max(0, 1 - handoffT * 2.2),
+            pointerEvents: !inStationJourney && handoffT < 0.35 ? "auto" : "none",
+            transform: `translateY(${-handoffT * 18}px)`,
+          }}
+        >
+          <span className="eyebrow">06 / FROM CELL TO CULTURE</span>
+          <h2 className="bioprocess-handoff-title">One cell.<br />A whole process.</h2>
+          <p className="bioprocess-handoff-subtitle">
+            The sealed cell enters the biofoundry. Scroll to advance through each stage of cultivation.
+          </p>
+        </div>
+
+        {/* Phase B: Station HUD (fades in smoothly ONLY when Stations 01-08 begin) */}
+        <div
+          className="bioprocess-hud"
+          aria-live="polite"
+          style={{
+            opacity: inStationJourney ? 1 : 0,
+            pointerEvents: inStationJourney ? "auto" : "none",
+            transition: "opacity 320ms ease",
+          }}
+        >
+          {/* Top Bar: Station details & standalone link, well clear of the page navbar */}
           <div className="bioprocess-hud-header">
-            <div className="bioprocess-hud-tagline">
+            <div className="bioprocess-hud-meta">
               <span className="bioprocess-eyebrow">06 / FROM CELL TO CULTURE</span>
               <h2 id={`${id}-title`} className="bioprocess-station-title">
                 <span className="station-num">{currentStation.tag}</span> {currentStation.title}
@@ -229,7 +256,7 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
             </div>
           </div>
 
-          {/* 8-Station Interactive Timeline Tracker */}
+          {/* Bottom Dock: 8-Station Interactive Timeline Tracker */}
           <div className="bioprocess-timeline" role="navigation" aria-label="Bioprocess Stations">
             {STATIONS.map((station, idx) => {
               const num = idx + 1;
@@ -249,26 +276,6 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
                 </button>
               );
             })}
-          </div>
-        </div>
-
-        {/* Floating intro card at the start of the section */}
-        <div
-          className="bioprocess-intro-card"
-          style={{
-            opacity: introOpacity,
-            pointerEvents: introOpacity > 0.05 ? "auto" : "none",
-            transform: `translateY(${(1 - introOpacity) * -24}px)`,
-          }}
-        >
-          <span className="eyebrow">06 / FROM CELL TO CULTURE</span>
-          <h3>One cell.<br />A whole process.</h3>
-          <p>
-            The sealed cell enters the biofoundry. Scroll to advance through each stage
-            of cultivation, from spore isolation to bioreactor harvest.
-          </p>
-          <div className="bioprocess-scroll-hint">
-            <span>SCROLL TO ADVANCE PROCESS</span> <span aria-hidden="true">↓</span>
           </div>
         </div>
 

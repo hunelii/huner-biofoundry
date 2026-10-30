@@ -68,11 +68,14 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       let handoffT = 0;
       let inHandoffZone = false;
       let inBioprocessStages = false;
+      let inMaterialWithBio = false;
 
       if (bioEl && bioHeight > 0) {
         const bioScrollDist = Math.max(1, bioHeight - vh);
         const rawBioP = (currentScrollY - bioTop) / bioScrollDist;
-        if (rawBioP >= 0 && rawBioP < 0.12) {
+        if (currentScrollY >= materialTop && currentScrollY < bioTop) {
+          inMaterialWithBio = true;
+        } else if (rawBioP >= 0 && rawBioP < 0.12) {
           inHandoffZone = true;
           handoffT = clamp(rawBioP / 0.12);
         } else if (rawBioP >= 0.12 && currentScrollY < bioTop + bioHeight) {
@@ -111,6 +114,9 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       } else if (inBioprocessStages) {
         e.setCellHandoff(1);
         restoredMaterial = e.setMaterialTarget(0, true);
+      } else if (inMaterialWithBio) {
+        e.setCellHandoff(0);
+        restoredMaterial = e.setMaterialTarget(windowState.progress, false);
       } else {
         e.setCellHandoff(0);
         restoredMaterial = e.setMaterialTarget(windowState.progress, currentScrollY >= end);
@@ -128,7 +134,13 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       e.visible = currentScrollY < milestonesTop && !covered;
       if (canvas.current) {
         if (inHandoffZone) {
-          canvas.current.style.opacity = "1";
+          // Under the peak veil (t >= 0.70), background canvas fades to 0 as Bioprocess spore takes over
+          const canvasAlpha = handoffT < 0.70 ? 1 : Math.max(0, 1 - (handoffT - 0.70) / 0.18);
+          canvas.current.style.opacity = String(canvasAlpha);
+          canvas.current.style.transform = "translateY(0px)";
+        } else if (inMaterialWithBio) {
+          // Never slide or fade the cell while reading Section 05 prior to Section 06
+          canvas.current.style.opacity = !e.visible ? "0" : "1";
           canvas.current.style.transform = "translateY(0px)";
         } else if (inBioprocessStages) {
           canvas.current.style.opacity = "0";
