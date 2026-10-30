@@ -33,3 +33,14 @@ export function cellJourney(progress: number) {
     heading: 1 - smoothRange(.03, .27, p),
   };
 }
+
+export function cellFinale(progress: number) {
+  const t = Math.max(0, Math.min(1, progress));
+  return {
+    close: smoothRange(0, 0.3, t),
+    glow: smoothRange(0.25, 0.85, t),
+    handoff: smoothRange(0.65, 1, t),
+    veil: smoothRange(0.25, 0.68, t) * (1 - smoothRange(0.72, 1, t)),
+  };
+}
+

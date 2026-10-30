@@ -45,12 +45,15 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       const matEl = document.getElementById("material");
       const cultEl = document.getElementById("cultivation");
       const mileEl = document.getElementById("milestones");
+      const bioEl = document.getElementById("bioprocess");
 
       const materialTop = matEl ? matEl.offsetTop : 0;
       const materialHeight = matEl ? matEl.offsetHeight : 0;
       const cultivationTop = cultEl ? cultEl.offsetTop : 0;
       const cultivationHeight = cultEl ? cultEl.offsetHeight : 0;
       const milestonesTop = mileEl ? mileEl.offsetTop : 0;
+      const bioTop = bioEl ? bioEl.offsetTop : materialTop + materialHeight;
+      const bioHeight = bioEl ? bioEl.offsetHeight : 0;
 
       let chapterIdx = 0;
       for (let i = 0; i < chapters.length; i++) {
@@ -60,6 +63,24 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
 
       const windowState = materialWindow(currentScrollY, materialTop, materialHeight, vh);
       const end = materialTop + materialHeight;
+
+      // Coordinate seamless cell handoff with Bioprocess 3D
+      let handoffT = 0;
+      let inHandoffZone = false;
+      let inBioprocessStages = false;
+
+      if (bioEl && bioHeight > 0) {
+        const bioScrollDist = Math.max(1, bioHeight - vh);
+        const rawBioP = (currentScrollY - bioTop) / bioScrollDist;
+        if (rawBioP >= 0 && rawBioP < 0.12) {
+          inHandoffZone = true;
+          handoffT = clamp(rawBioP / 0.12);
+        } else if (rawBioP >= 0.12 && currentScrollY < bioTop + bioHeight) {
+          inBioprocessStages = true;
+          handoffT = 1;
+        }
+      }
+
       const tissueVal = currentScrollY < end
         ? clamp((currentScrollY - cultivationTop + vh * 0.2) / Math.max(1, cultivationHeight - vh * 0.5))
         : 0;
@@ -81,7 +102,19 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
 
       e.stage = chapterIdx;
       e.boundary = e.stage === 3 || e.stage === 4 ? 1 : 0;
-      const restoredMaterial = e.setMaterialTarget(windowState.progress, currentScrollY >= end);
+
+      // Cell target and handoff synchronization
+      let restoredMaterial = false;
+      if (inHandoffZone) {
+        e.setCellHandoff(handoffT);
+        restoredMaterial = e.setMaterialTarget(1, false);
+      } else if (inBioprocessStages) {
+        e.setCellHandoff(1);
+        restoredMaterial = e.setMaterialTarget(0, true);
+      } else {
+        e.setCellHandoff(0);
+        restoredMaterial = e.setMaterialTarget(windowState.progress, currentScrollY >= end);
+      }
       e.tissue = tissueVal;
 
       if (cultEl) {
@@ -94,12 +127,20 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
 
       e.visible = currentScrollY < milestonesTop && !covered;
       if (canvas.current) {
-        canvas.current.style.opacity = !e.visible ? "0" : String(windowState.opacity);
-        canvas.current.style.transform = `translateY(${windowState.offset}px)`;
+        if (inHandoffZone) {
+          canvas.current.style.opacity = "1";
+          canvas.current.style.transform = "translateY(0px)";
+        } else if (inBioprocessStages) {
+          canvas.current.style.opacity = "0";
+        } else {
+          canvas.current.style.opacity = !e.visible ? "0" : String(windowState.opacity);
+          canvas.current.style.transform = `translateY(${windowState.offset}px)`;
+        }
         canvas.current.dataset.chapter = chapters[e.stage] ?? "arrival";
       }
 
-      if (e.visible && (e.paused || e.materialTarget === 0 || restoredMaterial)) e.render();
+      if (e.visible && (e.paused || e.materialTarget === 0 || restoredMaterial || inHandoffZone)) e.render();
+
     };
     const onScroll = () => {
       if (!scrollFrame) scrollFrame = requestAnimationFrame(() => { scrollFrame = 0; stage(); });

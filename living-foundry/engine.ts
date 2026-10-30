@@ -41,6 +41,7 @@ export class FoundryEngine {
   regime = phenotype(0);
   materialProgress = 0;
   materialTarget = 0;
+  cellHandoff = 0;
   private materialPastEnd = false;
   private materialElement: HTMLElement | null = null;
   tissue = 0;
@@ -175,6 +176,13 @@ export class FoundryEngine {
     else if (this.paused || this.materialPastEnd) this.materialProgress = this.cell ? progress : Math.min(.045, progress);
     this.materialPastEnd = pastEnd;
     return previous !== this.materialProgress;
+  }
+  setCellHandoff(t: number) {
+    const clamped = Math.max(0, Math.min(1, t));
+    if (Math.abs(this.cellHandoff - clamped) > 0.001) {
+      this.cellHandoff = clamped;
+      if (this.visible && (this.paused || this.materialTarget > 0)) this.render();
+    }
   }
   captureMaterial() {
     this.snapshotHasBoundary = this.fieldHasBoundary;
@@ -349,7 +357,7 @@ export class FoundryEngine {
     if (this.cell && cellView) {
       const focus = this.displayMaterial.uniforms.materialFocus.value as THREE.Vector2;
       const origin = fieldToScreen(focus, this.composition);
-      const ms = this.cell.render(this.renderer, this.materialProgress, pixels.width, pixels.height, origin);
+      const ms = this.cell.render(this.renderer, this.materialProgress, pixels.width, pixels.height, origin, this.cellHandoff);
       if (typeof ms === "number") {
         const decision = this.cellBudget.observe(ms);
         if (decision === "fallback") { this.fallback("cell-performance"); return; }

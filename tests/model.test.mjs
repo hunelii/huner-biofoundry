@@ -150,3 +150,22 @@ test("environment input and cell origin stay aligned through the Conditions comp
   assert.equal(fieldView(0,false).conditions,0);
   assert.equal(fieldView(5,false).conditions,0);
 });
+
+const { cellFinale } = await load("../living-foundry/material-transition.ts");
+test("the finale closes the cell, glows, then hands over, and reverse scroll retraces it", () => {
+  const start = cellFinale(0), end = cellFinale(1);
+  assert.deepEqual([start.close, start.glow, start.handoff, start.veil], [0, 0, 0, 0]);
+  assert.deepEqual([end.close, end.glow, end.handoff, end.veil], [1, 1, 1, 0]);
+  let previous = cellFinale(0);
+  for (let step = 1; step <= 100; step++) {
+    const current = cellFinale(step / 100);
+    for (const key of ["close", "glow", "handoff"]) assert.ok(current[key] >= previous[key], `${key} reversed at ${step}%`);
+    previous = current;
+  }
+  assert.equal(cellFinale(.3).close, 1, "the wall is sealed before the glow peaks");
+  assert.ok(cellFinale(.5).glow > 0 && cellFinale(.5).glow < 1);
+  assert.ok(cellFinale(.7).veil > .9, "the veil is near its peak while the cell is sealed");
+  assert.ok(cellFinale(.6).handoff === 0 && cellFinale(.9).handoff > 0);
+  assert.deepEqual(cellFinale(-5), cellFinale(0));
+  assert.deepEqual(cellFinale(9), cellFinale(1));
+});

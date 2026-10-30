@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { cellJourney } from "./material-transition";
+import { cellJourney, cellFinale } from "./material-transition";
 
 /** Original, generalized fungal-cell cutaway. Illustrative anatomy, not to scale. */
 export class FungalCell {
@@ -13,6 +13,7 @@ export class FungalCell {
   private batches: THREE.InstancedMesh[] = [];
   private lastView = "";
   private key = new THREE.DirectionalLight(0xffeed0, 3.1);
+  private glowLight: THREE.PointLight;
   private randomState = 2718;
   private front: THREE.Mesh<THREE.SphereGeometry, THREE.MeshPhysicalMaterial>;
 
@@ -86,6 +87,9 @@ export class FungalCell {
     rim.position.set(3, -.5, -2); this.scene.add(rim);
     const fill = new THREE.DirectionalLight(0x71845c, .7);
     fill.position.set(2, -3, 4); this.scene.add(fill);
+    this.glowLight = new THREE.PointLight(0xd4c26b, 0, 12, 1.5);
+    this.glowLight.position.set(0, 0, 0.5);
+    this.scene.add(this.glowLight);
     const material = (color: number, roughness = .58, bumpScale = .01, clearcoat = .08) => {
       const result = new THREE.MeshPhysicalMaterial({ color, roughness, metalness: 0, bumpMap: relief, bumpScale, clearcoat, clearcoatRoughness: .36, side: THREE.DoubleSide });
       this.materials.add(result); return result;
@@ -223,8 +227,8 @@ export class FungalCell {
     this.instances(granules, ribosome, 1);
     this.body.rotation.z = -.18;
   }
-  render(renderer: THREE.WebGLRenderer, progress: number, width: number, height: number, origin = { x: .7, y: .61 }) {
-    const signature = `${width}:${height}:${progress.toFixed(5)}:${origin.x.toFixed(4)}:${origin.y.toFixed(4)}`;
+  render(renderer: THREE.WebGLRenderer, progress: number, width: number, height: number, origin = { x: .7, y: .61 }, handoff = 0) {
+    const signature = `${width}:${height}:${progress.toFixed(5)}:${origin.x.toFixed(4)}:${origin.y.toFixed(4)}:${handoff.toFixed(3)}`;
     if (this.lastView === signature) return;
     this.lastView = signature;
     const started = performance.now();
@@ -245,8 +249,16 @@ export class FungalCell {
     this.body.rotation.y = -.32 + journey.opening * .42 + journey.inspect * .08;
     this.body.rotation.x = .18 - journey.opening * .08;
     this.body.scale.setScalar(1);
-    this.front.material.opacity = 1 - journey.opening;
-    this.front.visible = journey.opening < .999;
+    if (handoff > 0) {
+      const finale = cellFinale(handoff);
+      this.front.material.opacity = Math.max(1 - journey.opening, finale.close);
+      this.front.visible = true;
+      this.glowLight.intensity = finale.glow * 16.0;
+    } else {
+      this.front.material.opacity = 1 - journey.opening;
+      this.front.visible = journey.opening < .999;
+      this.glowLight.intensity = 0;
+    }
     const shadows = renderer.shadowMap.enabled;
     renderer.shadowMap.enabled = true;
     renderer.setRenderTarget(this.target); renderer.render(this.scene, this.camera);

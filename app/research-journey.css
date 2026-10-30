@@ -140,16 +140,282 @@ html[data-reading-surface="light"] .motion-control { color: var(--foundry-green)
   html[data-engine="live"] .material-caption { padding-top: 8px; padding-bottom: 42px; border-top: 0; font-size: 11px; }
 }
 
-/* Bioprocess 3D embed: a second scene, loaded only when the reader approaches it. */
-.bioprocess-stage { position: relative; background: var(--culture-white); color: var(--foundry-green); padding: 110px var(--page-x) 70px; scroll-margin-top: 0; }
-.bioprocess-intro { display: grid; grid-template-columns: 1.4fr 1fr; gap: 7%; align-items: end; margin-bottom: 44px; }
-.bioprocess-intro h2 { margin: 18px 0 0; font-size: clamp(54px, 7vw, 112px); line-height: .95; letter-spacing: -.045em; font-weight: 400; }
-.bioprocess-intro > p:last-child { font-size: 18px; line-height: 1.7; max-width: 460px; margin: 0 0 4px; color: var(--culture-green); }
-.bioprocess-frame { position: relative; width: 100%; height: min(86svh, 860px); min-height: 460px; background: var(--foundry-green); overflow: hidden; }
-.bioprocess-frame iframe, .bioprocess-placeholder { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
-.bioprocess-stage .scope-caption a { border-bottom: 1px solid currentColor; }
-@media (max-width: 900px) {
-  .bioprocess-stage { padding: 80px var(--page-x) 50px; }
-  .bioprocess-intro { grid-template-columns: 1fr; gap: 24px; }
-  .bioprocess-frame { height: 78svh; min-height: 420px; }
+/* Bioprocess 3D Sticky Narrative Stage (~850svh) */
+.bioprocess-stage {
+  position: relative;
+  height: 850svh;
+  background: #111a10;
+  color: var(--culture-white);
+  padding: 0;
+  margin: 0;
+  isolation: isolate;
 }
+
+.bioprocess-sticky {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background: #111a10;
+}
+
+/* Greenish-Gold Bioluminescent Veil */
+.bioprocess-glow-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(212, 194, 107, 0.98) 0%,
+    rgba(181, 196, 105, 0.88) 32%,
+    rgba(34, 49, 29, 0.95) 68%,
+    #111a10 100%
+  );
+  mix-blend-mode: screen;
+  will-change: opacity;
+  transition: opacity 60ms linear;
+}
+
+/* Bioprocess WebGL Iframe & Placeholder */
+.bioprocess-iframe,
+.bioprocess-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  z-index: 2;
+  background: #111a10;
+}
+
+/* Floating Intro Card at Stage Top */
+.bioprocess-intro-card {
+  position: absolute;
+  top: clamp(60px, 12svh, 110px);
+  left: var(--page-x);
+  max-width: 520px;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.bioprocess-intro-card .eyebrow {
+  color: #b5c469;
+  letter-spacing: 0.12em;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.bioprocess-intro-card h3 {
+  font-size: clamp(48px, 6.5vw, 84px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+  margin: 0 0 20px;
+  color: #f4f1e8;
+}
+.bioprocess-intro-card p {
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.6;
+  color: #d7dcc0;
+  margin: 0 0 24px;
+}
+.bioprocess-scroll-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: #b5c469;
+}
+
+/* Minimal HUD Overlay */
+.bioprocess-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(24px, 4svh, 48px) var(--page-x) clamp(24px, 4svh, 40px);
+}
+
+.bioprocess-hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.bioprocess-hud-tagline {
+  max-width: 540px;
+}
+
+.bioprocess-eyebrow {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: #b5c469;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.bioprocess-station-title {
+  font-size: clamp(24px, 3.2vw, 42px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+  margin: 0 0 6px;
+  color: #f4f1e8;
+}
+.bioprocess-station-title .station-num {
+  color: #d4c26b;
+  font-family: monospace;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.bioprocess-station-desc {
+  font-size: clamp(13px, 1.1vw, 15px);
+  line-height: 1.5;
+  color: #a6ad83;
+  margin: 0;
+}
+
+.bioprocess-hud-actions {
+  pointer-events: auto;
+}
+
+.bioprocess-standalone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #f4f1e8;
+  padding: 8px 14px;
+  background: rgba(34, 49, 29, 0.65);
+  border: 1px solid rgba(212, 194, 107, 0.35);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  text-decoration: none;
+  transition: all 200ms ease;
+}
+.bioprocess-standalone-link:hover {
+  background: rgba(212, 194, 107, 0.2);
+  border-color: #d4c26b;
+  color: #ffffff;
+}
+
+/* 8-Station Timeline Bar */
+.bioprocess-timeline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 680px;
+  pointer-events: auto;
+  background: rgba(17, 26, 16, 0.7);
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.timeline-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+  cursor: pointer;
+  color: #85996b;
+  transition: color 200ms ease;
+}
+
+.timeline-step .step-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  transition: background-color 250ms ease, height 200ms ease;
+}
+
+.timeline-step.completed .step-bar {
+  background: #85996b;
+}
+
+.timeline-step.current .step-bar {
+  background: #d4c26b;
+  height: 4px;
+  box-shadow: 0 0 10px rgba(212, 194, 107, 0.8);
+}
+
+.timeline-step.current .step-label {
+  color: #f4f1e8;
+  font-weight: 600;
+}
+
+.timeline-step .step-label {
+  font-size: 11px;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+.bioprocess-error-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 25;
+  background: rgba(24, 38, 20, 0.95);
+  border: 1px solid rgba(212, 194, 107, 0.4);
+  padding: 24px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+}
+.bioprocess-error-card p {
+  color: #f4f1e8;
+  margin-bottom: 12px;
+}
+.bioprocess-error-card a {
+  color: #d4c26b;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .bioprocess-hud {
+    padding: 20px var(--page-x) 20px;
+  }
+  .bioprocess-station-desc {
+    display: none;
+  }
+  .bioprocess-hud-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .bioprocess-timeline {
+    gap: 4px;
+    padding: 6px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bioprocess-stage {
+    height: auto;
+    padding: 80px var(--page-x);
+  }
+  .bioprocess-sticky {
+    position: relative;
+    height: 75svh;
+  }
+}
+
