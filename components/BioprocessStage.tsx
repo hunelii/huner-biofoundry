@@ -125,13 +125,13 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
 
           setHandoffT(t);
           setInStationJourney(false);
-          setVeilOpacity(finale.veil);
+          // Soft ambient optical bloom (never an opaque blocking veil)
+          setVeilOpacity(finale.veil * 0.38);
           setActiveStation(1);
 
-          // Phase-aligned handoff to Bioprocess:
-          // Bioprocess's t=0 is peak glow (which happens at Huner t=0.65..0.72)
-          // From Huner t=0.65 to 1.0, Bioprocess t goes from 0 to 1
-          const bioprocessT = t < 0.65 ? 0 : Math.max(0, Math.min(1, (t - 0.65) / 0.35));
+          // Phase-aligned handoff: Bioprocess spore stays at peak glow during superposition (t < 0.70),
+          // then pulls back the camera (t = 0.70 -> 1.0) into Station 01
+          const bioprocessT = t < 0.70 ? 0 : Math.max(0, Math.min(1, (t - 0.70) / 0.30));
           postToIframe({ type: "huner:handoff", t: bioprocessT });
         } else {
           // Beyond handoff: stations journey (8 stations)
@@ -185,16 +185,22 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
   const embedUrl = `${source}${source.includes("?") ? "&" : "?"}embed=1`;
 
   return (
-    <section id={id} ref={stageRef} className="bioprocess-stage" aria-labelledby={`${id}-title`}>
+    <section
+      id={id}
+      ref={stageRef}
+      className="bioprocess-stage"
+      data-station-mode={inStationJourney}
+      aria-labelledby={`${id}-title`}
+    >
       <div className="bioprocess-sticky">
-        {/* Greenish-Gold Bioluminescent Veil (bridges cell closing and hero spore appearance) */}
+        {/* Soft bioluminescent bloom radiating from the cell (non-occluding) */}
         <div
           className="bioprocess-glow-veil"
           style={{ opacity: veilOpacity }}
           aria-hidden="true"
         />
 
-        {/* Bioprocess 3D WebGL iframe */}
+        {/* Bioprocess 3D WebGL iframe (superimposes directly on Huner's cell) */}
         {isWarmedUp ? (
           <iframe
             ref={iframeRef}
@@ -203,6 +209,10 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
             className="bioprocess-iframe"
             allow="fullscreen"
             referrerPolicy="strict-origin-when-cross-origin"
+            style={{
+              opacity: inStationJourney ? 1 : Math.max(0, Math.min(1, (handoffT - 0.35) / 0.35)),
+              pointerEvents: inStationJourney ? "auto" : "none",
+            }}
           />
         ) : (
           <div className="bioprocess-placeholder" aria-hidden="true" />

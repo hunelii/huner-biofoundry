@@ -134,8 +134,12 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       e.visible = currentScrollY < milestonesTop && !covered;
       if (canvas.current) {
         if (inHandoffZone) {
-          // Under the peak veil (t >= 0.70), background canvas fades to 0 as Bioprocess spore takes over
-          const canvasAlpha = handoffT < 0.70 ? 1 : Math.max(0, 1 - (handoffT - 0.70) / 0.18);
+          // Direct 3D Cell Superposition:
+          // t = 0..0.35: Huner cell closes and rotates into place (canvasAlpha = 1)
+          // t = 0.35..0.70: Both cells glow and crossfade directly in place (canvasAlpha: 1 -> 0)
+          // t >= 0.70: Bioprocess spore takes over completely (canvasAlpha = 0)
+          const crossfadeT = clamp((handoffT - 0.35) / 0.35);
+          const canvasAlpha = 1 - crossfadeT;
           canvas.current.style.opacity = String(canvasAlpha);
           canvas.current.style.transform = "translateY(0px)";
         } else if (inMaterialWithBio) {

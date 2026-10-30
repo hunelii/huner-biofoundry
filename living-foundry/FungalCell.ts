@@ -364,12 +364,26 @@ export class FungalCell {
     this.body.position.set((x - .5) * halfHeight * 2 * aspect, (y - .5) * halfHeight * 2, 0);
     this.body.rotation.y = -.32 + journey.opening * .42 + journey.inspect * .08;
     this.body.rotation.x = .18 - journey.opening * .08;
+    this.body.rotation.z = -.18;
     this.body.scale.setScalar(1);
     if (handoff > 0) {
       const finale = cellFinale(handoff);
       this.front.material.opacity = Math.max(1 - journey.opening, finale.close);
       this.front.visible = true;
-      this.glowLight.intensity = finale.glow * 16.0;
+      this.glowLight.intensity = finale.glow * 18.0;
+
+      // Smoothly align 3D rotation and vertical center with Bioprocess hero spore
+      const alignT = THREE.MathUtils.clamp(handoff / 0.40, 0, 1);
+      const easeAlign = alignT * alignT * (3 - 2 * alignT);
+      const curRotX = .18 - journey.opening * .08;
+      const curRotY = -.32 + journey.opening * .42 + journey.inspect * .08;
+      const curRotZ = -.18;
+      this.body.rotation.x = THREE.MathUtils.lerp(curRotX, -0.24, easeAlign);
+      this.body.rotation.y = THREE.MathUtils.lerp(curRotY, 0.22, easeAlign);
+      this.body.rotation.z = THREE.MathUtils.lerp(curRotZ, -0.36, easeAlign);
+
+      const targetY = THREE.MathUtils.lerp(endY, 0.50, easeAlign);
+      this.body.position.set((x - .5) * halfHeight * 2 * aspect, (targetY - .5) * halfHeight * 2, 0);
     } else {
       this.front.material.opacity = 1 - journey.opening;
       this.front.visible = journey.opening < .999;

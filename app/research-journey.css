@@ -144,11 +144,16 @@ html[data-reading-surface="light"] .motion-control { color: var(--foundry-green)
 .bioprocess-stage {
   position: relative;
   height: 850svh;
-  background: #111a10;
+  background: #22311d;
   color: var(--culture-white);
   padding: 0;
   margin: 0;
   isolation: isolate;
+  transition: background-color 600ms ease;
+}
+
+.bioprocess-stage[data-station-mode="true"] {
+  background: #07120d;
 }
 
 .bioprocess-sticky {
@@ -158,10 +163,10 @@ html[data-reading-surface="light"] .motion-control { color: var(--foundry-green)
   width: 100%;
   height: 100svh;
   overflow: hidden;
-  background: #111a10;
+  background: transparent;
 }
 
-/* Greenish-Gold Bioluminescent Veil */
+/* Greenish-Gold Bioluminescent Ambient Bloom (soft volumetric aura, non-occluding) */
 .bioprocess-glow-veil {
   position: absolute;
   inset: 0;
@@ -169,14 +174,13 @@ html[data-reading-surface="light"] .motion-control { color: var(--foundry-green)
   pointer-events: none;
   background: radial-gradient(
     circle at 50% 50%,
-    rgba(212, 194, 107, 0.98) 0%,
-    rgba(181, 196, 105, 0.88) 32%,
-    rgba(34, 49, 29, 0.95) 68%,
-    #111a10 100%
+    rgba(212, 194, 107, 0.46) 0%,
+    rgba(181, 196, 105, 0.24) 30%,
+    rgba(34, 49, 29, 0) 65%
   );
   mix-blend-mode: screen;
   will-change: opacity;
-  transition: opacity 60ms linear;
+  transition: opacity 100ms ease-out;
 }
 
 /* Bioprocess WebGL Iframe & Placeholder */
@@ -189,7 +193,9 @@ html[data-reading-surface="light"] .motion-control { color: var(--foundry-green)
   border: 0;
   display: block;
   z-index: 2;
-  background: #111a10;
+  background: transparent;
+  will-change: opacity;
+  transition: opacity 120ms linear;
 }
 
 /* Phase A: Handoff Narrative Banner (positioned with generous clearance below site navbar) */
