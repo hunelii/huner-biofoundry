@@ -353,7 +353,7 @@ export class FungalCell {
     this.camera.aspect = aspect;
     const journey = cellJourney(progress);
     // The closed cell approaches on the same focal path as the living field.
-    const fit = Math.max(5.1, 5.3 / aspect);
+    const fit = Math.max(5.1, 5.8 / aspect);
     const distance = fit * Math.pow(6.2, 1 - journey.approach) * (1 - journey.inspect * .035);
     this.camera.far = Math.max(100, distance + 15);
     this.camera.position.set(0, 0, distance);

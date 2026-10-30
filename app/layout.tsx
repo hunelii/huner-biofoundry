@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./content.css";
 import "./visual-stories.css";
@@ -6,6 +6,14 @@ import "./research-journey.css";
 import { site, description } from "@/lib/site";
 import TrackingConsent from "@/components/TrackingConsent";
 import { reviewMode } from "@/content/server";
+
+export const viewport: Viewport = {
+  themeColor: "#22311d",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "Huner Biofoundry | Fungal Bioprocess Research",
   description,

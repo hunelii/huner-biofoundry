@@ -113,7 +113,7 @@ export class MilestoneSculpture {
   show(visible:boolean){this.visible=visible;this.last=0;if(visible)this.wake();else{cancelAnimationFrame(this.frame);this.frame=0;}}
   resize(){
     if(this.disposed)return;const w=this.canvas.clientWidth,h=this.canvas.clientHeight;if(!w||!h)return;
-    const dpr=Math.min(devicePixelRatio,innerWidth<700?1.5:2,Math.sqrt(2800000/(w*h)));
+    const dpr=Math.min(devicePixelRatio,innerWidth<768?1.5:2,Math.sqrt(2800000/(w*h)));
     this.renderer.setPixelRatio(dpr);this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();
     this.setTarget();this.camera.position.copy(this.eye);this.aim.copy(this.target);this.fromEye.copy(this.eye);this.fromAim.copy(this.target);this.travel=1;this.render();
   }
@@ -126,7 +126,7 @@ export class MilestoneSculpture {
   private wake(){if(!this.disposed&&this.visible&&!this.paused&&!this.frame)this.frame=requestAnimationFrame(this.tick);}
   private tick=(now:number)=>{
     this.frame=0;if(this.disposed||!this.visible||this.paused){this.last=0;return;}
-    if(this.last&&now-this.last<(innerWidth<700?32:16)){this.wake();return;}
+    if(this.last&&now-this.last<(innerWidth<768?32:16)){this.wake();return;}
     const dt=this.last?Math.min(.05,(now-this.last)/1000):.016;this.last=now;this.travel=Math.min(1,this.travel+dt/1.3);
     const t=this.travel,tween=t*t*t*(t*(t*6-15)+10);
     this.camera.position.lerpVectors(this.fromEye,this.eye,tween);this.aim.lerpVectors(this.fromAim,this.target,tween);

@@ -65,7 +65,10 @@ input:focus-visible {
   top: 0;
   left: 0;
   right: 0;
-  padding: 34px var(--page-x);
+  padding: max(28px, calc(env(safe-area-inset-top, 0px) + 12px))
+           max(var(--page-x), env(safe-area-inset-right, 0px))
+           24px
+           max(var(--page-x), env(safe-area-inset-left, 0px));
   display: flex;
   justify-content: space-between;
   align-items: start;
@@ -340,7 +343,7 @@ html[data-engine="live"] .still-organism {
     --page-x: 22px;
   }
   .brand-header {
-    padding-top: 24px;
+    padding-top: max(20px, calc(env(safe-area-inset-top, 0px) + 6px));
   }
   .wordmark {
     flex-direction: column;
@@ -370,8 +373,8 @@ html[data-engine="live"] .still-organism {
     display: none;
   }
   .scroll-cue {
-    bottom: 45px;
-    left: var(--page-x);
+    bottom: max(38px, calc(env(safe-area-inset-bottom, 0px) + 18px));
+    left: max(var(--page-x), env(safe-area-inset-left, 0px));
     right: auto;
     font-size: 12px;
     gap: 28px;
@@ -496,7 +499,9 @@ body {
 }
 .material-heading {
   position: absolute;
-  inset: 70px var(--page-x) auto;
+  top: max(74px, calc(env(safe-area-inset-top, 0px) + 58px));
+  left: max(var(--page-x), env(safe-area-inset-left, 0px));
+  right: max(var(--page-x), env(safe-area-inset-right, 0px));
   opacity: var(--heading-opacity);
 }
 .material-heading h2 {
@@ -548,10 +553,10 @@ html[data-engine="live"] .material-caption {
   background: transparent;
   color: var(--culture-white);
   border-top: 1px solid #f4f1e824;
-  margin: 0 var(--page-x);
+  margin: 0 max(var(--page-x), env(safe-area-inset-left, 0px));
   padding-left: 0;
   padding-right: 0;
-  padding-bottom: 70px;
+  padding-bottom: max(60px, calc(env(safe-area-inset-bottom, 0px) + 24px));
 }
 html[data-engine="live"] .material-disclaimer { color: #d7dcc0; }
 .material-error {
@@ -578,17 +583,19 @@ html:not([data-engine="live"]) .material-heading .eyebrow {
     height: 230svh;
   }
   .material-heading {
-    top: 60px;
+    top: auto;
+    bottom: max(18vh, 140px);
   }
   .material-heading h2 {
-    font-size: clamp(45px, 12vw, 64px);
-    margin-top: 28px;
+    font-size: clamp(40px, 11vw, 58px);
+    margin-top: 20px;
   }
   .material-caption {
     flex-direction: column;
     align-items: start;
     gap: 12px;
     padding-top: 18px;
+    padding-bottom: max(45px, calc(env(safe-area-inset-bottom, 0px) + 16px));
   }
   .material-caption a {
     min-height: 24px;
@@ -608,13 +615,6 @@ html:not([data-engine="live"]) .material-heading .eyebrow {
 
 #material {
   scroll-margin-top: -90px;
-}
-
-@media (max-width: 600px) {
-  .material-heading {
-    top: auto;
-    bottom: 24vh;
-  }
 }
 html[data-engine="live"] .material-heading h2 { text-shadow:none; }
 
@@ -887,7 +887,10 @@ html[data-chapter="team"] .brand-header { background:var(--foundry-green); color
  .team-members { gap:28px; }
  .header-links { gap:24px; }
 }
-@media(max-width:700px) {
+@media(max-width:860px) {
+ .team-members { grid-template-columns:repeat(2,1fr); gap:24px; }
+}
+@media(max-width:600px) {
  .header-links a.people-link { display:none; }
  .team-heading h2 { font-size:clamp(42px,10.8vw,70px); margin-top:26px; }
  .team-collective { padding-top:75px; padding-bottom:75px; min-height:0; }
@@ -957,7 +960,7 @@ html[data-chapter="team"] .brand-header { background:var(--foundry-green); color
  .milestone-index { gap:18px; margin-top:55px; }
  .milestone-index-title { font-size:15px; }
 }
-@media(max-width:700px) {
+@media(max-width:860px) {
  .milestone-journey { min-height:0; padding-top:72px; padding-bottom:65px; }
  .milestone-heading { width:100%; }
  .milestone-heading h2 { font-size:clamp(43px,10.5vw,64px); margin-top:24px; }
@@ -971,7 +974,7 @@ html[data-chapter="team"] .brand-header { background:var(--foundry-green); color
  .milestone-record { font-size:45px; }
  .milestone-detail-heading { margin-bottom:24px; }
  .milestone-controls { margin-top:12px; }
- .milestone-index { grid-template-columns:1fr; gap:0; margin-top:45px; }
+ .milestone-index { grid-template-columns:repeat(2,1fr); gap:16px; margin-top:45px; }
  .milestone-index button { display:grid; grid-template-columns:24px 1fr; gap:5px 16px; padding:17px 0; }
  .milestone-index-number { grid-row:1 / 3; padding-top:3px; }
  .milestone-index-title { font-size:17px; }
@@ -979,4 +982,7 @@ html[data-chapter="team"] .brand-header { background:var(--foundry-green); color
  .milestone-index button[aria-current]::before { width:24px; }
  .milestone-journey[data-ready="false"] .milestone-list { grid-template-columns:1fr; gap:35px; }
  .milestone-journey[data-ready="false"] .milestone-list li { min-height:0; }
+}
+@media(max-width:600px) {
+ .milestone-index { grid-template-columns:1fr; gap:0; }
 }
