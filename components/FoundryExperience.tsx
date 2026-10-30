@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import MilestoneJourney from "./MilestoneJourney";
 import TeamCollective from "./TeamCollective";
 import StillOrganism from "./StillOrganism";
+import BioprocessStage from "./BioprocessStage";
 const LivingFoundry = dynamic(
   () => import("@/living-foundry/LivingFoundryCanvas"),
   { ssr: false },
@@ -148,16 +149,17 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
               <p className="eyebrow">05 / INSIDE LIFE</p>
               <h2 id="material-title">A world<br />within life.</h2>
             </div>
-            <CellStudyGuide continueHref={processContent ? "#inquiry" : "/approach/#measurement"} />
+            <CellStudyGuide continueHref={processContent ? "#bioprocess" : "/approach/#measurement"} />
             <div className="material-caption">
               <span>FUNGAL CELL / A SCHEMATIC STUDY<br /><span className="material-disclaimer">Not to scale · not a reconstruction of a Huner organism</span></span>
-              <a href={processContent ? "#inquiry" : "/approach/#measurement"}>From cell to culture ↓</a>
+              <a href={processContent ? "#bioprocess" : "/approach/#measurement"}>From cell to culture ↓</a>
             </div>
           </div>
         </section>
+        <BioprocessStage />
         {processContent}
         <div className="applications-intro" id="applications">
-          <p className="eyebrow">06 / POSSIBILITIES</p>
+          <p className="eyebrow">07 / POSSIBILITIES</p>
           <p>Different possibilities.<br /><span>Different process requirements.</span></p>
           <nav aria-label="Explore applications">
             <a data-track="explore_application" href="#food">Food ↘</a>
