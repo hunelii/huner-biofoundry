@@ -116,8 +116,8 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
         // Normalized scroll progress across the 850svh section [0, 1]
         const rawProgress = Math.max(0, Math.min(1, (currentY - stageTop) / scrollDistance));
 
-        // Handoff window: first 12% of the sticky section
-        const handoffRatio = 0.12;
+        // Handoff window: first 16% of the sticky section (~136svh for cinematic, unhurried pacing)
+        const handoffRatio = 0.16;
 
         if (rawProgress < handoffRatio) {
           const t = Math.max(0, Math.min(1, rawProgress / handoffRatio));
@@ -173,7 +173,7 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
     const stageHeight = stage.offsetHeight;
     const scrollDistance = Math.max(1, stageHeight - vh);
 
-    const handoffRatio = 0.12;
+    const handoffRatio = 0.16;
     const journeyRatio = 1 - handoffRatio;
     const targetP = handoffRatio + ((stationNum - 1) / 8) * journeyRatio + 0.01;
     const targetY = stageTop + targetP * scrollDistance;
@@ -210,7 +210,12 @@ export default function BioprocessStage({ id = "bioprocess" }: { id?: string }) 
             allow="fullscreen"
             referrerPolicy="strict-origin-when-cross-origin"
             style={{
-              opacity: inStationJourney ? 1 : Math.max(0, Math.min(1, (handoffT - 0.35) / 0.35)),
+              opacity: inStationJourney
+                ? 1
+                : (() => {
+                    const raw = Math.max(0, Math.min(1, (handoffT - 0.35) / 0.35));
+                    return raw * raw * (3 - 2 * raw);
+                  })(),
               pointerEvents: inStationJourney ? "auto" : "none",
             }}
           />

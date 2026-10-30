@@ -384,6 +384,10 @@ export class FungalCell {
 
       const targetY = THREE.MathUtils.lerp(endY, 0.50, easeAlign);
       this.body.position.set((x - .5) * halfHeight * 2 * aspect, (targetY - .5) * halfHeight * 2, 0);
+
+      // Match the exact 3D screen silhouette and diameter of Bioprocess's hero spore
+      const targetScale = THREE.MathUtils.lerp(1.0, 0.70, easeAlign);
+      this.body.scale.setScalar(targetScale);
     } else {
       this.front.material.opacity = 1 - journey.opening;
       this.front.visible = journey.opening < .999;

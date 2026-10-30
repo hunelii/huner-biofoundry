@@ -42,6 +42,7 @@ export class FoundryEngine {
   materialProgress = 0;
   materialTarget = 0;
   cellHandoff = 0;
+  cellHandoffTarget = 0;
   private materialPastEnd = false;
   private materialElement: HTMLElement | null = null;
   tissue = 0;
@@ -179,9 +180,10 @@ export class FoundryEngine {
   }
   setCellHandoff(t: number) {
     const clamped = Math.max(0, Math.min(1, t));
-    if (Math.abs(this.cellHandoff - clamped) > 0.001) {
+    this.cellHandoffTarget = clamped;
+    if (this.paused) {
       this.cellHandoff = clamped;
-      if (this.visible && (this.paused || this.materialTarget > 0)) this.render();
+      if (this.visible && (this.materialTarget > 0 || this.materialProgress > 0)) this.render();
     }
   }
   captureMaterial() {
@@ -390,10 +392,17 @@ export class FoundryEngine {
       // Hold the field while the model warms, then resolve both layers on one timeline.
       const target = this.cell ? this.materialTarget : Math.min(.045, this.materialTarget);
       const next = settleCellProgress(this.materialProgress, target, delta);
+      const nextHandoff = settleCellProgress(this.cellHandoff, this.cellHandoffTarget, delta);
+      let changed = false;
       if (next !== this.materialProgress) {
         this.materialProgress = next;
-        this.render();
+        changed = true;
       }
+      if (Math.abs(nextHandoff - this.cellHandoff) > 0.0001) {
+        this.cellHandoff = nextHandoff;
+        changed = true;
+      }
+      if (changed) this.render();
       return;
     }
     const start = performance.now();

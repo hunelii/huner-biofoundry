@@ -73,12 +73,13 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       if (bioEl && bioHeight > 0) {
         const bioScrollDist = Math.max(1, bioHeight - vh);
         const rawBioP = (currentScrollY - bioTop) / bioScrollDist;
+        const bioHandoffRatio = 0.16;
         if (currentScrollY >= materialTop && currentScrollY < bioTop) {
           inMaterialWithBio = true;
-        } else if (rawBioP >= 0 && rawBioP < 0.12) {
+        } else if (rawBioP >= 0 && rawBioP < bioHandoffRatio) {
           inHandoffZone = true;
-          handoffT = clamp(rawBioP / 0.12);
-        } else if (rawBioP >= 0.12 && currentScrollY < bioTop + bioHeight) {
+          handoffT = clamp(rawBioP / bioHandoffRatio);
+        } else if (rawBioP >= bioHandoffRatio && currentScrollY < bioTop + bioHeight) {
           inBioprocessStages = true;
           handoffT = 1;
         }
@@ -134,12 +135,13 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       e.visible = currentScrollY < milestonesTop && !covered;
       if (canvas.current) {
         if (inHandoffZone) {
-          // Direct 3D Cell Superposition:
+          // Direct 3D Cell Superposition with smoothstep S-curve equal-power blending:
           // t = 0..0.35: Huner cell closes and rotates into place (canvasAlpha = 1)
           // t = 0.35..0.70: Both cells glow and crossfade directly in place (canvasAlpha: 1 -> 0)
           // t >= 0.70: Bioprocess spore takes over completely (canvasAlpha = 0)
-          const crossfadeT = clamp((handoffT - 0.35) / 0.35);
-          const canvasAlpha = 1 - crossfadeT;
+          const rawCrossfade = clamp((handoffT - 0.35) / 0.35);
+          const easeCrossfade = rawCrossfade * rawCrossfade * (3 - 2 * rawCrossfade);
+          const canvasAlpha = 1 - easeCrossfade;
           canvas.current.style.opacity = String(canvasAlpha);
           canvas.current.style.transform = "translateY(0px)";
         } else if (inMaterialWithBio) {
