@@ -13,3 +13,12 @@ dist/
 .vercel
 
 node_modules
+antigravity/
+old/
+00_OKU_BENI/
+01_ANA_KAYNAKLAR/
+02_V1_3D_SITE/
+chat_media/
+pages-config.json
+CHAT_*.txt
+

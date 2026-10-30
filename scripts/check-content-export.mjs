@@ -24,7 +24,10 @@ for(const [file,html] of read) {
     if(href.startsWith('//')) continue;
     const current = relative==='index.html' ? '/' : '/'+relative.replace(/index\.html$/,'');
     const url = new URL(href,'http://local'+current);
-    let target = path.join(root,decodeURIComponent(url.pathname));
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (process.env.GITHUB_ACTIONS === "true" ? "/huner-biofoundry" : "");
+    let pathname = decodeURIComponent(url.pathname);
+    if (basePath && pathname.startsWith(basePath)) pathname = pathname.slice(basePath.length) || '/';
+    let target = path.join(root,pathname);
     try { const entry = await stat(target); if(entry.isDirectory()) target=path.join(target,'index.html'); await stat(target); }
     catch { errors.push(`${relative}: missing target ${href}`); continue; }
     if(url.hash && target.endsWith('.html')) {
