@@ -177,9 +177,9 @@ main {
   margin: 0;
 }
 .narrative-copy > p {
-  font-size: 20px;
-  line-height: 1.4;
-  max-width: 390px;
+  font-size: clamp(17px, 1.25vw, 20px);
+  line-height: 1.55;
+  max-width: min(520px, 90vw);
   margin: 32px 0 0;
 }
 .life .narrative-copy {
@@ -650,25 +650,25 @@ html[data-engine="live"] .material-heading h2 { text-shadow:none; }
 .applications-intro nav a { padding: 12px 0; border-bottom: 1px solid var(--growth-green); font-size: 14px; }
 .application { border-top: 1px solid #22311d30; }
 .application .narrative-copy { margin-top: 30vh; }
-.application h2 { font-size: clamp(70px, 9vw, 146px); }
-.application .application-line { font-size: clamp(22px, 2.5vw, 34px); max-width: 520px; margin-top: 30px; }
-.application .application-line + p { margin-top: 18px; font-size: 18px; max-width: 350px; }
+.application h2 { font-size: clamp(38px, 4.8vw, 76px); line-height: 1.05; max-width: 820px; }
+.application .application-line { font-size: clamp(18px, 1.8vw, 24px); max-width: 600px; margin-top: 24px; }
+.application .application-line + p { margin-top: 16px; font-size: 16px; line-height: 1.55; max-width: 480px; }
 .fragrance h2 { color: var(--growth-green); }
 .raw-materials h2 { max-width: 700px; }
 .behavior-note { position: absolute; right: var(--page-x); top: 17vh; font-size: 12px; letter-spacing: .06em; line-height: 1.8; color: var(--culture-green); }
 .behavior-note span { letter-spacing: 0; }
 .closing { position: relative; background: var(--foundry-green); color: var(--culture-white); padding: 70px var(--page-x) 100px; min-height: 70svh; }
 .closing .eyebrow { color: var(--culture-white); }
-.closing h2 { font-weight: 400; font-size: clamp(60px, 7.6vw, 120px); letter-spacing: -.05em; line-height: .98; margin: 90px 0 48px; }
+.closing h2 { font-weight: 400; font-size: clamp(44px, 5.5vw, 84px); letter-spacing: -.05em; line-height: 1.02; margin: 70px 0 32px; max-width: 780px; }
 .closing-sub { font-size: clamp(16px, 1.35vw, 20px); line-height: 1.6; max-width: 540px; margin: 0 0 36px; opacity: 0.9; }
 .closing a { display: inline-block; padding: 14px 0; border-bottom: 1px solid; font-size: 12px; letter-spacing: .04em; }
 @media(max-width: 600px) {
   .applications-intro { padding-top: 70px; min-height: 70svh; }
   .applications-intro nav { gap: 12px 25px; }
-  .application .narrative-copy { margin-top: 36vh; }
-  .application h2 { font-size: clamp(58px, 16vw, 82px); }
+  .application .narrative-copy { margin-top: 28vh; }
+  .application h2 { font-size: clamp(30px, 8.5vw, 44px); }
   .behavior-note { top: 14vh; }
-  .closing h2 { font-size: 15vw; }
+  .closing h2 { font-size: clamp(34px, 10vw, 52px); }
 }
 
 .behavior-note { top: auto; bottom: 9vh; }
@@ -718,10 +718,10 @@ html[data-chapter="conditions"] .boundary-caption { visibility:hidden; }
 .cultivation-orbit span:nth-child(3) { inset: -14% 14%; }
 .applications-intro { min-height: 80svh; padding-top: 110px; }
 .applications-intro nav { display: grid; gap: 0; margin-top: 65px; }
-.applications-intro nav a { border-bottom: 1px solid #22311d40; font-size: clamp(28px, 4vw, 62px); letter-spacing: -.04em; padding: 16px 0; transition: padding-left .3s,color .3s; }
+.applications-intro nav a { border-bottom: 1px solid #22311d40; font-size: clamp(22px, 3.2vw, 44px); letter-spacing: -.03em; padding: 16px 0; transition: padding-left .3s,color .3s; }
 .applications-intro nav a:hover { padding-left: 20px; color: var(--growth-green); }
 .application { min-height: 100svh; }
-.application h2 { font-size: clamp(80px,11vw,180px); }
+.application h2 { font-size: clamp(40px, 4.8vw, 76px); line-height: 1.05; }
 .application .narrative-copy { margin-top: 25vh; }
 .fragrance .narrative-copy { margin-left: 5vw; }
 .raw-materials .narrative-copy { margin-top: 23vh; }
@@ -729,7 +729,7 @@ html[data-chapter="conditions"] .boundary-caption { visibility:hidden; }
 .behavior-note { font-size: 12px; right: calc(var(--page-x) + 25px); }
 .closing { background: var(--culture-white); color: var(--foundry-green); min-height: 85svh; }
 .closing .eyebrow { color: var(--growth-green); }
-.closing h2 { font-size: clamp(80px,11vw,170px); }
+.closing h2 { font-size: clamp(44px, 5.5vw, 84px); line-height: 1.02; max-width: 800px; }
 .motion-control { background: transparent; text-shadow: none; }
 html[data-chapter="cultivation"] .motion-control { color: var(--culture-white); }
 html[data-engine="static"] .cultivation { background: var(--foundry-green); }
@@ -749,13 +749,13 @@ html[data-engine="static"] .cultivation h2, html[data-engine="static"] .cultivat
  .cultivation .narrative-copy { margin-top: 34vh; }
  .cultivation h2 { font-size: 14vw; }
  .cultivation-orbit { inset: 12% 3% 55% 38%; }
- .application .narrative-copy { margin-top: 35vh; }
- .application h2 { font-size: 16vw; }
+ .application .narrative-copy { margin-top: 28vh; }
+ .application h2 { font-size: clamp(28px, 8.5vw, 42px); }
  .fragrance .narrative-copy { margin-left: 0; }
  .applications-intro { padding-top: 85px; }
  .applications-intro nav { margin-top: 38px; }
- .applications-intro nav a { font-size: 36px; }
- .closing h2 { font-size: 18vw; }
+ .applications-intro nav a { font-size: 24px; }
+ .closing h2 { font-size: clamp(34px, 10vw, 52px); }
  .behavior-note { font-size: 12px; right: auto; }
 }
 @media(prefers-reduced-motion:reduce) {
