@@ -660,6 +660,7 @@ html[data-engine="live"] .material-heading h2 { text-shadow:none; }
 .closing { position: relative; background: var(--foundry-green); color: var(--culture-white); padding: 70px var(--page-x) 100px; min-height: 70svh; }
 .closing .eyebrow { color: var(--culture-white); }
 .closing h2 { font-weight: 400; font-size: clamp(60px, 7.6vw, 120px); letter-spacing: -.05em; line-height: .98; margin: 90px 0 48px; }
+.closing-sub { font-size: clamp(16px, 1.35vw, 20px); line-height: 1.6; max-width: 540px; margin: 0 0 36px; opacity: 0.9; }
 .closing a { display: inline-block; padding: 14px 0; border-bottom: 1px solid; font-size: 12px; letter-spacing: .04em; }
 @media(max-width: 600px) {
   .applications-intro { padding-top: 70px; min-height: 70svh; }

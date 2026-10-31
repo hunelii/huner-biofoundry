@@ -26,4 +26,4 @@ export const site = readSiteConfig({
   VERCEL_ENV: process.env.VERCEL_ENV,
   CONTEXT: process.env.CONTEXT,
 });
-export const description = "Huner Biofoundry is an early-stage biotechnology initiative studying fungal cultivation and bioprocess engineering through laboratory research, mathematical modeling and industry research.";
+export const description = "Huner Biofoundry develops fermentation-derived truffle aroma ingredients for B2B food manufacturers, replacing volatile agricultural supply with controlled submerged liquid fermentation.";

@@ -1,8 +1,11 @@
 import FoundryExperience from "@/components/FoundryExperience";
-import HomeScience, { HomeProcess } from "@/components/content/HomeScience";
+import HomeScience from "@/components/content/HomeScience";
 import { contentMetadata } from "@/lib/content-metadata";
-import { description } from "@/lib/site";
-export const metadata = contentMetadata("Fungal bioprocess research", description, "/");
+export const metadata = contentMetadata(
+  "Fermentation-Derived Truffle Aroma",
+  "Huner Biofoundry develops fermentation-derived truffle aroma ingredients for B2B food manufacturers using controlled submerged liquid fermentation.",
+  "/"
+);
 export default function Home() {
-  return <FoundryExperience processContent={<HomeProcess />} content={<HomeScience />} />;
+  return <FoundryExperience content={<HomeScience />} />;
 }

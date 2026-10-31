@@ -3,9 +3,53 @@ import ReadingPage from "@/components/content/ReadingPage";
 import { EvidenceStatus, UncertaintyNote } from "@/components/content/Science";
 import { programs } from "@/content/research";
 import { contentMetadata } from "@/lib/content-metadata";
-export const metadata = contentMetadata("Research", "Huner’s laboratory, modeling and industry research, with candidate fungal programs and explicit limits on current evidence.", "/research/");
-export default function Page() { return <ReadingPage path="/research/" chapter="Research" title="Questions before claims." intro="We are building scientific capability through laboratory work, mathematical modeling and industry research. Each asks a different part of the same question: what makes a fungal process useful and reproducible?">
-  <ResearchLoop />
-  <section className="reading-section"><p className="eyebrow">CANDIDATE PROGRAMS</p><h2>Two systems.<br /><span>Different questions.</span></h2><p className="section-intro">These directions come from Huner’s research planning. They are not a catalog of active, validated processes. Species-specific experimental scope remains to be confirmed.</p><div className="research-list">{programs.map((program,i) => <article key={program.slug}><span className="research-number">0{i+1}</span><div><EvidenceStatus>{program.status}</EvidenceStatus><h3><a href={`/research/${program.slug}/`}><i>{program.organism}</i> ↗</a></h3><p>{program.question}</p><p className="scope-caption">Approach: {i === 0 ? "Cultivation and separate biomass / metabolite measurements." : "Cultivation, biomass and volatile-profile characterization."}</p><a className="text-link" href={`/research/${program.slug}/`}>Read the research direction</a></div></article>)}</div></section>
-  <UncertaintyNote>No comparative Huner performance dataset or approved research publication is currently presented. Mathematical models are in development; their experimental predictive validity has not yet been established.</UncertaintyNote><nav className="related-links" aria-label="Related research resources"><a href="/approach/">Methods & measurement ↗</a><a href="/journal/">Research journal ↗</a><a href="/publications/">Publications ↗</a></nav>
-</ReadingPage>; }
+export const metadata = contentMetadata(
+  "Research & Development",
+  "Submerged fermentation of Tuber melanosporum, volatile aroma characterization via GC-MS, and kinetic bioprocess modeling at METU.",
+  "/research/"
+);
+export default function Page() {
+  return (
+    <ReadingPage
+      path="/research/"
+      chapter="Research"
+      title="R&D, Analytics & Kinetic Modeling."
+      intro="We conduct laboratory submerged fermentation, chromatographic volatile profiling (GC-MS), and mathematical kinetic modeling at Middle East Technical University (METU) to develop reproducible, fermentation-derived truffle aroma ingredients."
+    >
+      <ResearchLoop />
+      <section className="reading-section">
+        <p className="eyebrow">RESEARCH PROGRAMS</p>
+        <h2>Fungal systems.<br /><span>Single-product focus.</span></h2>
+        <p className="section-intro">
+          Our primary active R&D focus is <i>Tuber melanosporum</i> for truffle-characterized aroma ingredients, supported by foundational research into fungal growth kinetics and metabolite regulation.
+        </p>
+        <div className="research-list">
+          {programs.map((program, i) => (
+            <article key={program.slug}>
+              <span className="research-number">0{i + 1}</span>
+              <div>
+                <EvidenceStatus>{program.slug === "tuber-melanosporum" ? "Primary Focus · Active R&D" : "Candidate Direction"}</EvidenceStatus>
+                <h3><a href={`/research/${program.slug}/`}><i>{program.organism}</i> ↗</a></h3>
+                <p>{program.summary}</p>
+                <p className="scope-caption">
+                  Focus: {program.slug === "tuber-melanosporum"
+                    ? "Submerged fermentation (SmF), molasses carbon evaluation, and GC-MS volatile mapping."
+                    : "Comparative fungal biomass accumulation and metabolite yield."}
+                </p>
+                <a className="text-link" href={`/research/${program.slug}/`}>Read research details ↗</a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+      <UncertaintyNote>
+        Early-stage R&D at METU. Commercial ingredient yield, comprehensive volatile specifications, and regulatory approvals are actively being characterized through ongoing experimental work.
+      </UncertaintyNote>
+      <nav className="related-links" aria-label="Related research resources">
+        <a href="/approach/">Bioprocess methodology ↗</a>
+        <a href="/applications/">Target food matrices ↗</a>
+        <a href="/collaborate/">Technical dialogue ↗</a>
+      </nav>
+    </ReadingPage>
+  );
+}
