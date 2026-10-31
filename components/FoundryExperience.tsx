@@ -2,7 +2,6 @@
 import { useState, type ComponentType, type ReactNode } from "react";
 import ApplicationTrace from "./content/visuals/ApplicationTrace";
 import SiteNavigation from "./content/SiteNavigation";
-import CellStudyGuide from "./content/CellStudyGuide";
 import JourneyReadingTheme from "./content/JourneyReadingTheme";
 import dynamic from "next/dynamic";
 import MilestoneJourney from "./MilestoneJourney";
@@ -88,16 +87,6 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
               Life determines the response.
             </p>
           </div>
-          <button
-            className="condition-action"
-            onClick={() => window.dispatchEvent(new Event("huner:influence"))}
-          >
-            <span className="fine-hint">Move near the living field, or </span>
-            <span className="touch-hint">Touch the field, or </span>add a
-            condition <span aria-hidden="true">↗</span>
-          </button>
-          <p className="response-note" role="status" id="condition-status" />
-          <p className="condition-context"><span>Illustrative environmental field, not a calibrated cultivation model.</span></p>
         </section>
         <section
           id="foundry"
@@ -148,10 +137,12 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
             <div className="material-heading">
               <p className="eyebrow">05 / INSIDE LIFE</p>
               <h2 id="material-title">A world<br />within life.</h2>
+              <p className="material-copy">
+                Every bioprocess begins inside the cell. Intracellular structure and compartmentalization shape how mycelium expands, metabolizes and produces.
+              </p>
             </div>
-            <CellStudyGuide continueHref={processContent ? "#bioprocess" : "/approach/#measurement"} />
             <div className="material-caption">
-              <span>FUNGAL CELL / A SCHEMATIC STUDY<br /><span className="material-disclaimer">Not to scale · not a reconstruction of a Huner organism</span></span>
+              <span>FUNGAL CELL ARCHITECTURE<br /><span className="material-disclaimer">From cellular structure to biofoundry scale</span></span>
               <a href={processContent ? "#bioprocess" : "/approach/#measurement"}>From cell to culture ↓</a>
             </div>
           </div>
