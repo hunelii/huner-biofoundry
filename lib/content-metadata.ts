@@ -5,7 +5,7 @@ export function contentMetadata(title: string, description: string, path: string
   return { title: `${title} | Huner Biofoundry`, description,
     alternates: { canonical: site.origin && !reviewMode ? `${site.origin}${path}` : undefined },
     robots: { index: site.indexable && !reviewMode, follow: !reviewMode },
-    openGraph: { title, description, type: "website", siteName: "Huner Biofoundry", url: site.origin && !reviewMode ? `${site.origin}${path}` : undefined, images: [{ url: "/social/huner-research.png", width: 1200, height: 630, alt: "Huner Biofoundry — Fungal bioprocess research" }] },
+    openGraph: { title, description, type: "website", siteName: "Huner Biofoundry", url: site.origin && !reviewMode ? `${site.origin}${path}` : undefined, images: [{ url: "/social/huner-research.png", width: 1200, height: 630, alt: "Huner Biofoundry — Fermentation-Derived Truffle Aroma" }] },
     twitter: { card: "summary_large_image", title, description, images: ["/social/huner-research.png"] },
   };
 }
