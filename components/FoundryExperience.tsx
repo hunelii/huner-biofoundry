@@ -8,6 +8,7 @@ import MilestoneJourney from "./MilestoneJourney";
 import TeamCollective from "./TeamCollective";
 import StillOrganism from "./StillOrganism";
 import BioprocessStage from "./BioprocessStage";
+import ProcessVisualizationStage from "./ProcessVisualizationStage";
 const LivingFoundry = dynamic(
   () => import("@/living-foundry/LivingFoundryCanvas"),
   { ssr: false },
@@ -40,7 +41,7 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
               <br className="desktop-break" /> replacing volatile agricultural harvest with controlled biological production.
             </p>
             <p className="arrival-stage-note">Early-stage R&D · Submerged fermentation research & bioprocess modeling at METU.</p>
-            <div className="home-stage-links"><a className="arrival-direct" href="#applications">Target applications ↓</a><a className="arrival-direct" href="/research/">Follow our research ↗</a></div>
+            <div className="home-stage-links"><a className="arrival-direct" href="#approach-pipeline">Explore our approach ↓</a><a className="arrival-direct" href="#applications">Target applications ↓</a><a className="arrival-direct" href="/research/">Follow our research ↗</a></div>
           </div>
           <a
             className="scroll-cue"
@@ -115,42 +116,16 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
           </div>
           </div>
         </section>
-        <section
-          id="material"
-          className="material-stage"
-          aria-labelledby="material-title"
-        >
-          <div className="material-frame">
-            <svg className="material-still cell-still" viewBox="0 0 1000 700" role="img" aria-labelledby="cell-description">
-              <title id="cell-description">Schematic fungal cell cutaway showing a cell wall, membrane, nucleus, mitochondria and vacuole. Not to scale.</title>
-              <rect width="1000" height="700" fill="#22311d" />
-              <g transform="translate(500 350) rotate(-12)">
-                <ellipse rx="320" ry="210" fill="#a6ad83" />
-                <ellipse rx="301" ry="191" fill="#4a6741" />
-                <ellipse rx="289" ry="180" fill="#374f2f" />
-                <ellipse cx="110" cy="10" rx="98" ry="114" fill="#d7dcc0" />
-                <circle cx="-115" cy="-35" r="70" fill="#c19255" />
-                <circle cx="-125" cy="-45" r="21" fill="#71502e" />
-                {[[0,-126],[0,130],[-210,70],[222,-76]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y}) rotate(25)`}><ellipse rx="40" ry="18" fill="#85996b" /><path d="M-24 8 L-17 -8 L-8 8 L0 -8 L8 8 L17 -8 L24 8" fill="none" stroke="#374f2f" strokeWidth="4" /></g>)}
-              </g>
-            </svg>
-            <div className="material-heading">
-              <p className="eyebrow">05 / CELLULAR ENGINE</p>
-              <h2 id="material-title">Inside the<br />mycelial factory.</h2>
-              <p className="material-copy">
-                Volatile synthesis begins inside fungal hyphae. Metabolic pathways and cellular transport mechanisms govern how secondary metabolites are formed, compartmentalized, and recovered.
-              </p>
-            </div>
-            <div className="material-caption">
-              <span>FUNGAL CELL ARCHITECTURE<br /><span className="material-disclaimer">From cellular metabolism to pilot bioreactor scale</span></span>
-              <a href={processContent ? "#bioprocess" : "/approach/#measurement"}>From cell to bioprocess ↓</a>
-            </div>
-          </div>
-        </section>
-        <BioprocessStage />
-        {processContent}
+        <ProcessVisualizationStage
+          id="approach-pipeline"
+          mode="scroll"
+          eyebrow="05 / OUR APPROACH · BIOPROCESS PIPELINE"
+          title="From Molasses to a Truffle-Character Ingredient."
+          continueHref="#applications"
+          continueLabel="Continue to target food matrices ↓"
+        />
         <div className="applications-intro" id="applications">
-          <p className="eyebrow">07 / TARGET FOOD MATRICES</p>
+          <p className="eyebrow">06 / TARGET FOOD MATRICES</p>
           <p>Application-driven development.<br /><span>Formulated for industrial food matrices.</span></p>
           <nav aria-label="Explore target applications">
             <a data-track="explore_application" href="#food">Sauces & Culinary ↘</a>
@@ -192,6 +167,40 @@ export default function FoundryExperience({ SpatialLayer, content, processConten
             </div>
           </section>
         ))}
+        <section
+          id="material"
+          className="material-stage"
+          aria-labelledby="material-title"
+        >
+          <div className="material-frame">
+            <svg className="material-still cell-still" viewBox="0 0 1000 700" role="img" aria-labelledby="cell-description">
+              <title id="cell-description">Schematic fungal cell cutaway showing a cell wall, membrane, nucleus, mitochondria and vacuole. Not to scale.</title>
+              <rect width="1000" height="700" fill="#22311d" />
+              <g transform="translate(500 350) rotate(-12)">
+                <ellipse rx="320" ry="210" fill="#a6ad83" />
+                <ellipse rx="301" ry="191" fill="#4a6741" />
+                <ellipse rx="289" ry="180" fill="#374f2f" />
+                <ellipse cx="110" cy="10" rx="98" ry="114" fill="#d7dcc0" />
+                <circle cx="-115" cy="-35" r="70" fill="#c19255" />
+                <circle cx="-125" cy="-45" r="21" fill="#71502e" />
+                {[[0,-126],[0,130],[-210,70],[222,-76]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y}) rotate(25)`}><ellipse rx="40" ry="18" fill="#85996b" /><path d="M-24 8 L-17 -8 L-8 8 L0 -8 L8 8 L17 -8 L24 8" fill="none" stroke="#374f2f" strokeWidth="4" /></g>)}
+              </g>
+            </svg>
+            <div className="material-heading">
+              <p className="eyebrow">07 / TECHNICAL ARCHITECTURE · CELLULAR ENGINE</p>
+              <h2 id="material-title">Inside the<br />mycelial factory.</h2>
+              <p className="material-copy">
+                Volatile synthesis begins inside fungal hyphae. Metabolic pathways and cellular transport mechanisms govern how secondary metabolites are formed, compartmentalized, and recovered at bioreactor scale.
+              </p>
+            </div>
+            <div className="material-caption">
+              <span>FUNGAL CELL ARCHITECTURE<br /><span className="material-disclaimer">From cellular metabolism to 3D bioprocess engineering</span></span>
+              <a href={processContent ? "#bioprocess" : "#bioprocess"}>From cell to 3D bioprocess ↓</a>
+            </div>
+          </div>
+        </section>
+        <BioprocessStage />
+        {processContent}
         {content}
         <MilestoneJourney paused={paused} />
         <TeamCollective paused={paused} />

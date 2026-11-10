@@ -1,5 +1,6 @@
 import ReadingPage from "@/components/content/ReadingPage";
 import { EvidenceStatus } from "@/components/content/Science";
+import ProcessVisualizationStage from "@/components/ProcessVisualizationStage";
 import { contentMetadata } from "@/lib/content-metadata";
 
 export const metadata = contentMetadata(
@@ -64,6 +65,16 @@ export default function Page() {
           <a className="text-link" href="/applications/">Explore target food matrices ↗</a>
         </div>
       </section>
+
+      <ProcessVisualizationStage
+        id="approach-diagram"
+        mode="compact"
+        initialStageIndex={4}
+        eyebrow="INTERACTIVE PROCESS PIPELINE"
+        title="From Molasses to a Truffle-Character Ingredient."
+        continueHref="/applications/"
+        continueLabel="Explore target food matrices ↗"
+      />
 
       <nav className="related-links" aria-label="Next steps">
         <a href="/research/">Follow METU laboratory research ↗</a>

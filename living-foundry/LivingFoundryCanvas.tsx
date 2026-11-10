@@ -56,9 +56,13 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
       const bioHeight = bioEl ? bioEl.offsetHeight : 0;
 
       let chapterIdx = 0;
+      let activeTop = -Infinity;
       for (let i = 0; i < chapters.length; i++) {
         const el = document.getElementById(chapters[i]);
-        if (el && y >= el.offsetTop) chapterIdx = i;
+        if (el && y >= el.offsetTop && el.offsetTop >= activeTop) {
+          activeTop = el.offsetTop;
+          chapterIdx = i;
+        }
       }
 
       const windowState = materialWindow(currentScrollY, materialTop, materialHeight, vh);
@@ -85,9 +89,14 @@ export default function LivingFoundryCanvas({ paused }: { paused: boolean }) {
         }
       }
 
-      const tissueVal = currentScrollY < end
-        ? clamp((currentScrollY - cultivationTop + vh * 0.2) / Math.max(1, cultivationHeight - vh * 0.5))
-        : 0;
+      const cultEnd = cultivationTop + cultivationHeight;
+      const inCultivationZone = currentScrollY >= cultivationTop - vh * 0.2 && currentScrollY < cultEnd;
+      const inMaterialZone = currentScrollY >= materialTop - vh * 0.5 && currentScrollY < end;
+      const tissueVal = inMaterialZone
+        ? 1
+        : inCultivationZone
+          ? clamp((currentScrollY - cultivationTop + vh * 0.2) / Math.max(1, cultivationHeight - vh * 0.5))
+          : 0;
 
       const covered = readingSurfaces.some(surface => {
         const box = surface.getBoundingClientRect();

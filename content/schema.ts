@@ -19,7 +19,7 @@ export type Article = {
 export type ResearchProgram = {
   slug: string; title: string; organism: string; summary: string; question: string;
   hypothesis: string; approach: string; measurements: { name: string; purpose: string; limitation: string }[];
-  status: "Candidate research direction"; limitations: string; next: string; sources: string[];
+  status: "Candidate research direction" | "Active research program"; limitations: string; next: string; sources: string[];
   updatedAt: string; claimId: string;
 };
 export function validDate(value: string) {
