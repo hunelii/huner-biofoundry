@@ -62,7 +62,50 @@ export default function Page() {
           </div>
         </section>
       ))}
-      <a href="/collaborate/" className="text-link">Inquire about application co-development ↗</a>
+      <section id="bioprocess-modeling" className="reading-section">
+        <div className="prose" style={{ marginBottom: "24px" }}>
+          <p className="eyebrow">04 / 3D BIOPROCESS MODELING</p>
+          <h2>From bioreactor cultivation to downstream recovery.</h2>
+          <p>
+            Explore our 8-station 3D bioprocess facility simulation—tracing how pure mycelial culture progresses from spore isolation and stirred-tank cultivation to separation, filtration, and ingredient harvest.
+          </p>
+        </div>
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "min(72vh, 680px)",
+            minHeight: "460px",
+            borderRadius: "16px",
+            overflow: "hidden",
+            border: "1px solid rgba(55, 79, 47, 0.22)",
+            background: "#131c10",
+            boxShadow: "0 20px 48px rgba(19, 28, 16, 0.14)",
+          }}
+        >
+          <iframe
+            src="https://hunelii.github.io/bioprocess-modeling/"
+            title="Interactive 3D Bioprocess Modeling — Huner Biofoundry"
+            style={{ width: "100%", height: "100%", border: 0, display: "block" }}
+            allow="fullscreen"
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginTop: "14px" }}>
+          <a
+            href="https://hunelii.github.io/bioprocess-modeling/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-link"
+          >
+            Open full-screen 3D Bioprocess Model ↗
+          </a>
+          <a href="/collaborate/" className="text-link">
+            Inquire about application co-development ↗
+          </a>
+        </div>
+      </section>
     </ReadingPage>
   );
 }
