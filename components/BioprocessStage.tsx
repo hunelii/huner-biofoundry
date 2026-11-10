@@ -2,9 +2,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { cellFinale } from "@/living-foundry/material-transition";
 
-/** Live Bioprocess 3D deployment. Embedded from its standalone published address,
- * so every 3D model update to that repository is automatically reflected here. */
-const DEFAULT_SOURCE = "https://hunelii.github.io/bioprocess-modeling/";
+/** Live Bioprocess 3D deployment. Served directly from local static bundle in
+ * /public/bioprocess-modeling/ so local dev and self-hosted builds never depend on external GitHub Pages billing. */
+const DEFAULT_SOURCE = "/bioprocess-modeling/index.html";
 const source = process.env.NEXT_PUBLIC_BIOPROCESS_URL || DEFAULT_SOURCE;
 
 interface StationInfo {

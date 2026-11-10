@@ -84,7 +84,7 @@ export default function Page() {
           }}
         >
           <iframe
-            src="https://hunelii.github.io/bioprocess-modeling/"
+            src="/bioprocess-modeling/index.html"
             title="Interactive 3D Bioprocess Modeling — Huner Biofoundry"
             style={{ width: "100%", height: "100%", border: 0, display: "block" }}
             allow="fullscreen"
@@ -94,7 +94,7 @@ export default function Page() {
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginTop: "14px" }}>
           <a
-            href="https://hunelii.github.io/bioprocess-modeling/"
+            href="/bioprocess-modeling/index.html"
             target="_blank"
             rel="noopener noreferrer"
             className="text-link"
